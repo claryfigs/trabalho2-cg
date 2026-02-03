@@ -3,15 +3,15 @@ var texSrc = ["gato.jpg", "cachorro.png"];
 var loadTexs = 0;
 var gl;
 var prog;
-var camPos = [0, 0, 15]; // Afastei um pouco a câmera para ver ambos
+var camPos = [0, 0, 15];
 var angle = 0;
 
-// Dados brutos e Buffers
+
 var dadosParedes = null;
 var dadosRato = null;
 var bufParedes, bufRato;
 
-// --- EVENTOS DE TECLADO ---
+//Entradas do teclado
 window.addEventListener("keydown", function(e) {
     var speed = 0.1;
     if(e.key == "w") camPos[2] -= speed;
@@ -20,14 +20,14 @@ window.addEventListener("keydown", function(e) {
     if(e.key == "d") camPos[0] += speed;
 });
 
-// --- INICIALIZAÇÃO ASSÍNCRONA ---
+//inicialização
 async function init() {
     try {
-        // 1. Carrega os arquivos OBJ (usando o seu leitor.js)
+        //carregando arquivos
         dadosParedes = await carregarOBJ("paredes.obj");
         dadosRato = await carregarOBJ("rato.obj");
 
-        // 2. Carrega as texturas
+        //carregando texturas
         for(let i = 0; i < texSrc.length; i++) {
             teximg[i] = new Image();
             teximg[i].src = texSrc[i];
@@ -59,23 +59,22 @@ function initGL() {
     
     gl.useProgram(prog);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.clearColor(0.1, 0.1, 0.1, 1); // Fundo levemente cinza
+    gl.clearColor(0.1, 0.1, 0.1, 1); //fundo cinza
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 }
 
 function configScene() {
-    // Criação do Buffer das Paredes
+    //criação do Buffer das Paredes
     bufParedes = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufParedes);
     gl.bufferData(gl.ARRAY_BUFFER, dadosParedes, gl.STATIC_DRAW);
 
-    // Criação do Buffer do Rato
+    //criação do Buffer do Rato
     bufRato = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufRato);
     gl.bufferData(gl.ARRAY_BUFFER, dadosRato, gl.STATIC_DRAW);
 
-    // Configuração das Texturas
     function setupTex(id, img) {
         var tex = gl.createTexture();
         gl.activeTexture(gl.TEXTURE0 + id);
@@ -87,7 +86,7 @@ function configScene() {
     setupTex(1, teximg[1]);
 }
 
-// Função auxiliar para conectar os atributos ao buffer atual
+//função auxiliar de buffer
 function bindGeometria(buffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     var stride = 8 * 4;
@@ -103,17 +102,15 @@ function bindGeometria(buffer) {
     gl.enableVertexAttribArray(locTex);
 }
 
-// --- RENDERIZAÇÃO ---
+//função de renderização
 function draw() {
-    // 1. Limpeza do canvas e buffer de profundidade
+    //limpeza do canvas e buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // 2. Configuração de Câmera e Projeção
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(camPos, [0, 0, 0], [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
 
-    // 3. Obter localizações dos Uniforms
     var uTransf = gl.getUniformLocation(prog, "transf");
     var uModel = gl.getUniformLocation(prog, "u_model");
     var uTex = gl.getUniformLocation(prog, "tex");
@@ -121,12 +118,12 @@ function draw() {
     var uLightPos = gl.getUniformLocation(prog, "u_lightPos");
     var uViewPos = gl.getUniformLocation(prog, "u_viewPos");
 
-    // 4. Configurações Globais de Luz
+    //configurações globais de Luz
     gl.uniform3fv(uLightPos, [5.0, 5.0, 5.0]);
     gl.uniform3fv(uViewPos, camPos);
 
-    // --- DESENHAR PAREDES (Com Textura) ---
-    // Ativa a textura para este desenho
+
+    //textura parou de funcionar, tem que arrumar!!!!!
     gl.uniform1f(uUseTex, 1.0); 
     
     var mModelP = m4ComputeModelMatrix([0, 0, 0], 0, 0, 0, [1, 1, 1]); //parede
@@ -134,28 +131,26 @@ function draw() {
     gl.uniformMatrix4fv(uModel, false, mModelP);
     
     bindGeometria(bufParedes);
-    gl.uniform1i(uTex, 0); // Usa o slot de textura 0 (gato.jpg)
+    gl.uniform1i(uTex, 0);
     gl.drawArrays(gl.TRIANGLES, 0, dadosParedes.length / 8);
 
-    // --- DESENHAR RATO (Branco e sem Textura) ---
-    // Desativa a textura para este desenho (o shader usará a cor branca padrão)
-    gl.uniform1f(uUseTex, 0.0); 
-    
-    // Posicionado e rotacionando conforme o ângulo
+    //desativa a textura para este desenho (o shader usará a cor branca padrão)
+    gl.uniform1f(uUseTex, 0.0);
+
     var mModelR = m4ComputeModelMatrix([10, 0, 0], 0, angle, 0, [0.05, 0.05, 0.05]); //rato
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelR));
     gl.uniformMatrix4fv(uModel, false, mModelR);
     
     bindGeometria(bufRato);
-    // O uTex aqui é ignorado pelo shader pois uUseTex é 0.0
+
     gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8);
 
-    // 5. Atualização de animação e próxima chamada
+    //Atualização de animação
     angle += 1; 
     requestAnimationFrame(draw);
 }
 
-// Funções auxiliares de Shader (mantidas simplificadas)
+//funções auxiliares de Shader
 function createShader(gl, type, src) {
     var s = gl.createShader(type);
     gl.shaderSource(s, src);
