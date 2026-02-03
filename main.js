@@ -101,6 +101,9 @@ function initGL()
         gl.clearColor(0, 0, 0, 1);
         gl.enable( gl.BLEND );
 		gl.enable(gl.DEPTH_TEST); //Z-buffer
+        gl.enable(gl.DEPTH_TEST); 
+        gl.enable(gl.CULL_FACE); // ATIVA O DESCARTE DE FACES
+        gl.cullFace(gl.BACK);
         gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
     }
 }    
