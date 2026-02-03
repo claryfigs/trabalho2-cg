@@ -3,7 +3,7 @@ var texSrc = ["gato.jpg", "cachorro.png"];
 var loadTexs = 0;
 var gl;
 var prog;
-var camPos = [0, 0, 5]; // Afastei um pouco a câmera para ver ambos
+var camPos = [0, 0, 15]; // Afastei um pouco a câmera para ver ambos
 var angle = 0;
 
 // Dados brutos e Buffers
@@ -105,40 +105,53 @@ function bindGeometria(buffer) {
 
 // --- RENDERIZAÇÃO ---
 function draw() {
+    // 1. Limpeza do canvas e buffer de profundidade
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    // 2. Configuração de Câmera e Projeção
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
-    var mView = m4LookAt(camPos, [0,0,0], [0,1,0]);
+    var mView = m4LookAt(camPos, [0, 0, 0], [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
 
+    // 3. Obter localizações dos Uniforms
     var uTransf = gl.getUniformLocation(prog, "transf");
     var uModel = gl.getUniformLocation(prog, "u_model");
     var uTex = gl.getUniformLocation(prog, "tex");
+    var uUseTex = gl.getUniformLocation(prog, "u_useTexture");
+    var uLightPos = gl.getUniformLocation(prog, "u_lightPos");
+    var uViewPos = gl.getUniformLocation(prog, "u_viewPos");
 
-    gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 5.0]);
-    gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), camPos);
-    gl.uniform1f(gl.getUniformLocation(prog, "u_useTexture"), 1.0);
+    // 4. Configurações Globais de Luz
+    gl.uniform3fv(uLightPos, [5.0, 5.0, 5.0]);
+    gl.uniform3fv(uViewPos, camPos);
 
-    // 1. DESENHAR PAREDES
-    var mModelP = m4ComputeModelMatrix([0, 0, 0], 0, 0, 0, [1, 1, 1]);
+    // --- DESENHAR PAREDES (Com Textura) ---
+    // Ativa a textura para este desenho
+    gl.uniform1f(uUseTex, 1.0); 
+    
+    var mModelP = m4ComputeModelMatrix([0, 0, 0], 0, 0, 0, [1, 1, 1]); //parede
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelP));
     gl.uniformMatrix4fv(uModel, false, mModelP);
     
     bindGeometria(bufParedes);
-    gl.uniform1i(uTex, 0); // Usa a textura do Gato nas paredes
+    gl.uniform1i(uTex, 0); // Usa o slot de textura 0 (gato.jpg)
     gl.drawArrays(gl.TRIANGLES, 0, dadosParedes.length / 8);
 
-    // 2. DESENHAR RATO
-    // Posicionado à direita e rotacionando
-    var mModelR = m4ComputeModelMatrix([1.5, 0, 0], 0, angle, 0, [0.4, 0.4, 0.4]);
+    // --- DESENHAR RATO (Branco e sem Textura) ---
+    // Desativa a textura para este desenho (o shader usará a cor branca padrão)
+    gl.uniform1f(uUseTex, 0.0); 
+    
+    // Posicionado e rotacionando conforme o ângulo
+    var mModelR = m4ComputeModelMatrix([10, 0, 0], 0, angle, 0, [0.05, 0.05, 0.05]); //rato
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelR));
     gl.uniformMatrix4fv(uModel, false, mModelR);
     
     bindGeometria(bufRato);
-    gl.uniform1i(uTex, 1); // Usa a textura do Cachorro no rato
+    // O uTex aqui é ignorado pelo shader pois uUseTex é 0.0
     gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8);
 
-    angle += 0.02;
+    // 5. Atualização de animação e próxima chamada
+    angle += 1; 
     requestAnimationFrame(draw);
 }
 

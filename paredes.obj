@@ -1,25 +1,23 @@
-# OBJ exportado das coordenadas da Main
+# OBJ Paredes - Escala 10x
 # v: Posições (X, Y, Z)
-# vn: Normais (NX, NY, NZ)
-# vt: Texturas (U, V)
 
-# Vértices (Positions)
-v -0.5 -0.5  0.5
-v  0.5 -0.5  0.5
-v  0.5  0.5  0.5
-v -0.5  0.5  0.5
-v -0.5 -0.5 -0.5
-v  0.5 -0.5 -0.5
-v  0.5  0.5 -0.5
-v -0.5  0.5 -0.5
+# Vértices (Positions) - Multiplicados por 10
+v -5.0 -5.0  5.0
+v  5.0 -5.0  5.0
+v  5.0  5.0  5.0
+v -5.0  5.0  5.0
+v -5.0 -5.0 -5.0
+v  5.0 -5.0 -5.0
+v  5.0  5.0 -5.0
+v -5.0  5.0 -5.0
 
-# Coordenadas de Textura (UV)
+# Coordenadas de Textura (UV) - Mantidas
 vt 0 1
 vt 1 1
 vt 1 0
 vt 0 0
 
-# Normais
+# Normais - Mantidas (direção não muda com a escala)
 vn  0  0  1
 vn  0  0 -1
 vn  0  1  0
