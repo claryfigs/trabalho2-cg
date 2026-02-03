@@ -3,192 +3,156 @@ var texSrc = ["gato.jpg", "cachorro.png"];
 var loadTexs = 0;
 var gl;
 var prog;
-var camPos = [0, 0, 2];
+var camPos = [0, 0, 5]; // Afastei um pouco a câmera para ver ambos
 var angle = 0;
 
+// Dados brutos e Buffers
+var dadosParedes = null;
+var dadosRato = null;
+var bufParedes, bufRato;
+
+// --- EVENTOS DE TECLADO ---
 window.addEventListener("keydown", function(e) {
     var speed = 0.1;
-    if(e.key == "w") camPos[2] -= speed; // Frente
-    if(e.key == "s") camPos[2] += speed; // Trás
-    if(e.key == "a") camPos[0] -= speed; // Esquerda
-    if(e.key == "d") camPos[0] += speed; // Direita
+    if(e.key == "w") camPos[2] -= speed;
+    if(e.key == "s") camPos[2] += speed;
+    if(e.key == "a") camPos[0] -= speed;
+    if(e.key == "d") camPos[0] += speed;
 });
 
-function getGL(canvas)
-{
-    var gl = canvas.getContext("webgl");
-    if(gl) return gl;
-    
-    gl = canvas.getContext("experimental-webgl");
-    if(gl) return gl;
-    
-    alert("Contexto WebGL inexistente! Troque de navegador!");
-    return false;
-}
+// --- INICIALIZAÇÃO ASSÍNCRONA ---
+async function init() {
+    try {
+        // 1. Carrega os arquivos OBJ (usando o seu leitor.js)
+        dadosParedes = await carregarOBJ("paredes.obj");
+        dadosRato = await carregarOBJ("rato.obj");
 
-function createShader(gl, shaderType, shaderSrc)
-{
-	var shader = gl.createShader(shaderType);
-	gl.shaderSource(shader, shaderSrc);
-	gl.compileShader(shader);
-	
-	if(gl.getShaderParameter(shader, gl.COMPILE_STATUS))
-		return shader;
-	
-	alert("Erro de compilação: " + gl.getShaderInfoLog(shader));
-	
-	gl.deleteShader(shader);
-}
-
-function createProgram(gl, vtxShader, fragShader)
-{
-	var prog = gl.createProgram();
-	gl.attachShader(prog, vtxShader);
-	gl.attachShader(prog, fragShader);
-	gl.linkProgram(prog);
-	
-	if(gl.getProgramParameter(prog, gl.LINK_STATUS))
-		return prog;
-
-    alert("Erro de linkagem: " + gl.getProgramInfoLog(prog));
-	
-	gl.deleteProgram(prog);	
-}
-
-function init()
-{
-    for(i = 0; i < texSrc.length; i++)
-    {
-        teximg[i] = new Image();
-        teximg[i].src = texSrc[i];
-        teximg[i].onload = function()
-        {
-            loadTexs++;
-    	    loadTextures();
+        // 2. Carrega as texturas
+        for(let i = 0; i < texSrc.length; i++) {
+            teximg[i] = new Image();
+            teximg[i].src = texSrc[i];
+            teximg[i].onload = function() {
+                loadTexs++;
+                verificarCarga();
+            }
         }
+    } catch (e) {
+        console.error("Erro no carregamento:", e);
     }
 }
 
-function loadTextures()
-{
-    if(loadTexs == texSrc.length)
-    {
-       initGL();
-       configScene();
-       draw();
+function verificarCarga() {
+    if(loadTexs == texSrc.length && dadosParedes && dadosRato) {
+        initGL();
+        configScene();
+        draw();
     }
 }
+
+function initGL() {
+    var canvas = document.getElementById("glcanvas1");
+    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     
-function initGL()
-{
-	var canvas = document.getElementById("glcanvas1");
-	
-	gl = getGL(canvas);
-	if(gl)
-	{
-        //Inicializa shaders
- 		var vtxShSrc = document.getElementById("vertex-shader").text;
-		var fragShSrc = document.getElementById("frag-shader").text;
-
-        var vtxShader = createShader(gl, gl.VERTEX_SHADER, vtxShSrc);
-        var fragShader = createShader(gl, gl.FRAGMENT_SHADER, fragShSrc);
-        prog = createProgram(gl, vtxShader, fragShader);	
-        
-        gl.useProgram(prog);
-
-        //Inicializa área de desenho: viewport e cor de limpeza; limpa a tela
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.clearColor(0, 0, 0, 1);
-        gl.enable( gl.BLEND );
-		gl.enable(gl.DEPTH_TEST); //Z-buffer
-        gl.enable(gl.DEPTH_TEST); 
-        gl.enable(gl.CULL_FACE); // ATIVA O DESCARTE DE FACES
-        gl.cullFace(gl.BACK);
-        gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
-    }
-}    
+    var vtxShader = createShader(gl, gl.VERTEX_SHADER, document.getElementById("vertex-shader").text);
+    var fragShader = createShader(gl, gl.FRAGMENT_SHADER, document.getElementById("frag-shader").text);
+    prog = createProgram(gl, vtxShader, fragShader);    
+    
+    gl.useProgram(prog);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.clearColor(0.1, 0.1, 0.1, 1); // Fundo levemente cinza
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+}
 
 function configScene() {
-    // X, Y, Z,  NX, NY, NZ,  U, V
-    var v = new Float32Array([
-        // Frente (Normal: 0,0,1)
-        -0.5, -0.5,  0.5,  0,0,1,  0,1,   0.5, -0.5,  0.5,  0,0,1,  1,1,   0.5,  0.5,  0.5,  0,0,1,  1,0,
-        -0.5, -0.5,  0.5,  0,0,1,  0,1,   0.5,  0.5,  0.5,  0,0,1,  1,0,  -0.5,  0.5,  0.5,  0,0,1,  0,0,
-        // Atrás (Normal: 0,0,-1)
-        -0.5, -0.5, -0.5,  0,0,-1, 0,1,   0.5,  0.5, -0.5,  0,0,-1, 1,0,   0.5, -0.5, -0.5,  0,0,-1, 1,1,
-        -0.5, -0.5, -0.5,  0,0,-1, 0,1,  -0.5,  0.5, -0.5,  0,0,-1, 0,0,   0.5,  0.5, -0.5,  0,0,-1, 1,0,
-        // Topo (Normal: 0,1,0)
-        -0.5,  0.5, -0.5,  0,1,0,  0,1,  -0.5,  0.5,  0.5,  0,1,0,  0,0,   0.5,  0.5,  0.5,  0,1,0,  1,0,
-        -0.5,  0.5, -0.5,  0,1,0,  0,1,   0.5,  0.5,  0.5,  0,1,0,  1,0,   0.5,  0.5, -0.5,  0,1,0,  1,1,
-        // Baixo (Normal: 0,-1,0)
-        -0.5, -0.5, -0.5,  0,-1,0, 0,1,   0.5, -0.5,  0.5,  0,-1,0, 1,0,  -0.5, -0.5,  0.5,  0,-1,0, 0,0,
-        -0.5, -0.5, -0.5,  0,-1,0, 0,1,   0.5, -0.5, -0.5,  0,-1,0, 1,1,   0.5, -0.5,  0.5,  0,-1,0, 1,0,
-        // Direita (Normal: 1,0,0)
-         0.5, -0.5, -0.5,  1,0,0,  0,1,   0.5,  0.5, -0.5,  1,0,0,  0,0,   0.5,  0.5,  0.5,  1,0,0,  1,0,
-         0.5, -0.5, -0.5,  1,0,0,  0,1,   0.5,  0.5,  0.5,  1,0,0,  1,0,   0.5, -0.5,  0.5,  1,0,0,  1,1,
-        // Esquerda (Normal: -1,0,0)
-        -0.5, -0.5, -0.5, -1,0,0,  0,1,  -0.5, -0.5,  0.5, -1,0,0,  1,1,  -0.5,  0.5,  0.5, -1,0,0,  1,0,
-        -0.5, -0.5, -0.5, -1,0,0,  0,1,  -0.5,  0.5,  0.5, -1,0,0,  1,0,  -0.5,  0.5, -0.5, -1,0,0,  0,0
-    ]);
+    // Criação do Buffer das Paredes
+    bufParedes = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufParedes);
+    gl.bufferData(gl.ARRAY_BUFFER, dadosParedes, gl.STATIC_DRAW);
 
-    var bufPtr = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufPtr);
-    gl.bufferData(gl.ARRAY_BUFFER, v, gl.STATIC_DRAW);
+    // Criação do Buffer do Rato
+    bufRato = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufRato);
+    gl.bufferData(gl.ARRAY_BUFFER, dadosRato, gl.STATIC_DRAW);
 
-    var stride = 8 * 4;
-    gl.vertexAttribPointer(gl.getAttribLocation(prog, "position"), 3, gl.FLOAT, false, stride, 0);
-    gl.enableVertexAttribArray(gl.getAttribLocation(prog, "position"));
-
-    gl.vertexAttribPointer(gl.getAttribLocation(prog, "normal"), 3, gl.FLOAT, false, stride, 3 * 4);
-    gl.enableVertexAttribArray(gl.getAttribLocation(prog, "normal"));
-
-    gl.vertexAttribPointer(gl.getAttribLocation(prog, "texCoord"), 2, gl.FLOAT, false, stride, 6 * 4);
-    gl.enableVertexAttribArray(gl.getAttribLocation(prog, "texCoord"));
-
-    // --- Submeter texturas (Tex0 e Tex1) ---
+    // Configuração das Texturas
     function setupTex(id, img) {
         var tex = gl.createTexture();
         gl.activeTexture(gl.TEXTURE0 + id);
         gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     }
     setupTex(0, teximg[0]);
     setupTex(1, teximg[1]);
-}         
+}
 
+// Função auxiliar para conectar os atributos ao buffer atual
+function bindGeometria(buffer) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    var stride = 8 * 4;
+    var locPos = gl.getAttribLocation(prog, "position");
+    var locNorm = gl.getAttribLocation(prog, "normal");
+    var locTex = gl.getAttribLocation(prog, "texCoord");
+
+    gl.vertexAttribPointer(locPos, 3, gl.FLOAT, false, stride, 0);
+    gl.enableVertexAttribArray(locPos);
+    gl.vertexAttribPointer(locNorm, 3, gl.FLOAT, false, stride, 3 * 4);
+    gl.enableVertexAttribArray(locNorm);
+    gl.vertexAttribPointer(locTex, 2, gl.FLOAT, false, stride, 6 * 4);
+    gl.enableVertexAttribArray(locTex);
+}
+
+// --- RENDERIZAÇÃO ---
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
 
-    // 1. Matrizes
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(camPos, [0,0,0], [0,1,0]);
-    var mModel = m4ComputeModelMatrix([0, 0, 0], angle, angle * 0.5, 0, [1, 1, 1]);
-    
     var mVP = m4Multiply(mProj, mView);
-    var mFinal = m4Multiply(mVP, mModel);
 
-    // 2. Uniformes do Shader
-    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "transf"), false, mFinal);
-    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "u_model"), false, mModel);
-    
-    // Luz fixa no mundo (Ex: uma lâmpada no teto)
-    gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [0.0, 0.0, 5.0]);
+    var uTransf = gl.getUniformLocation(prog, "transf");
+    var uModel = gl.getUniformLocation(prog, "u_model");
+    var uTex = gl.getUniformLocation(prog, "tex");
+
+    gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 5.0]);
     gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), camPos);
-    // Dentro da função draw(), logo após enviar u_viewPos
-    var useTexPtr = gl.getUniformLocation(prog, "u_useTexture");
-    gl.uniform1f(useTexPtr, 1.0); // 1.0 para ver o gato/cachorro
+    gl.uniform1f(gl.getUniformLocation(prog, "u_useTexture"), 1.0);
 
-    var texPtr = gl.getUniformLocation(prog, "tex");
-    for(var i = 0; i < 6; i++) {
-        gl.uniform1i(texPtr, i % 2);
-        gl.drawArrays(gl.TRIANGLES, i * 6, 6);
-    }
+    // 1. DESENHAR PAREDES
+    var mModelP = m4ComputeModelMatrix([0, 0, 0], 0, 0, 0, [1, 1, 1]);
+    gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelP));
+    gl.uniformMatrix4fv(uModel, false, mModelP);
+    
+    bindGeometria(bufParedes);
+    gl.uniform1i(uTex, 0); // Usa a textura do Gato nas paredes
+    gl.drawArrays(gl.TRIANGLES, 0, dadosParedes.length / 8);
 
-    angle++;
+    // 2. DESENHAR RATO
+    // Posicionado à direita e rotacionando
+    var mModelR = m4ComputeModelMatrix([1.5, 0, 0], 0, angle, 0, [0.4, 0.4, 0.4]);
+    gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelR));
+    gl.uniformMatrix4fv(uModel, false, mModelR);
+    
+    bindGeometria(bufRato);
+    gl.uniform1i(uTex, 1); // Usa a textura do Cachorro no rato
+    gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8);
+
+    angle += 0.02;
     requestAnimationFrame(draw);
+}
+
+// Funções auxiliares de Shader (mantidas simplificadas)
+function createShader(gl, type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+}
+
+function createProgram(gl, vs, fs) {
+    var p = gl.createProgram();
+    gl.attachShader(p, vs); gl.attachShader(p, fs);
+    gl.linkProgram(p);
+    return p;
 }

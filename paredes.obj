@@ -1,0 +1,48 @@
+# OBJ exportado das coordenadas da Main
+# v: Posições (X, Y, Z)
+# vn: Normais (NX, NY, NZ)
+# vt: Texturas (U, V)
+
+# Vértices (Positions)
+v -0.5 -0.5  0.5
+v  0.5 -0.5  0.5
+v  0.5  0.5  0.5
+v -0.5  0.5  0.5
+v -0.5 -0.5 -0.5
+v  0.5 -0.5 -0.5
+v  0.5  0.5 -0.5
+v -0.5  0.5 -0.5
+
+# Coordenadas de Textura (UV)
+vt 0 1
+vt 1 1
+vt 1 0
+vt 0 0
+
+# Normais
+vn  0  0  1
+vn  0  0 -1
+vn  0  1  0
+vn  0 -1  0
+vn  1  0  0
+vn -1  0  0
+
+# Definição das Faces (f v/vt/vn)
+# Frente
+f 1/1/1 2/2/1 3/3/1
+f 1/1/1 3/3/1 4/4/1
+# Atrás
+f 5/1/2 7/3/2 6/2/2
+f 5/1/2 8/4/2 7/3/2
+# Topo
+f 8/1/3 4/4/3 3/3/3
+f 8/1/3 3/3/3 7/2/3
+# Baixo
+f 5/1/4 2/3/4 1/4/4
+f 5/1/4 6/2/4 2/3/4
+# Direita
+f 6/1/5 7/4/5 3/3/5
+f 6/1/5 3/3/5 2/2/5
+# Esquerda
+f 5/1/6 1/2/6 4/3/6
+f 5/1/6 4/3/6 8/4/6
