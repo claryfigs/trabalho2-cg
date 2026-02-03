@@ -106,84 +106,88 @@ function initGL()
 }    
 
 function configScene() {
-    // Coordenadas: X, Y, Z, U, V
+    // Estrutura: X, Y, Z,  R, G, B, A,  U, V
     var v = new Float32Array([
-        // Frente (Gato)
-        -0.5, -0.5,  0.5, 0,1,   0.5, -0.5,  0.5, 1,1,   0.5,  0.5,  0.5, 1,0,
-        -0.5, -0.5,  0.5, 0,1,   0.5,  0.5,  0.5, 1,0,  -0.5,  0.5,  0.5, 0,0,
-        // Atrás (Cachorro)
-        -0.5, -0.5, -0.5, 0,1,   0.5,  0.5, -0.5, 1,0,   0.5, -0.5, -0.5, 1,1,
-        -0.5, -0.5, -0.5, 0,1,  -0.5,  0.5, -0.5, 0,0,   0.5,  0.5, -0.5, 1,0,
-        // Topo (Gato)
-        -0.5,  0.5, -0.5, 0,1,  -0.5,  0.5,  0.5, 0,0,   0.5,  0.5,  0.5, 1,0,
-        -0.5,  0.5, -0.5, 0,1,   0.5,  0.5,  0.5, 1,0,   0.5,  0.5, -0.5, 1,1,
-        // Baixo (Cachorro)
-        -0.5, -0.5, -0.5, 0,1,   0.5, -0.5,  0.5, 1,0,  -0.5, -0.5,  0.5, 0,0,
-        -0.5, -0.5, -0.5, 0,1,   0.5, -0.5, -0.5, 1,1,   0.5, -0.5,  0.5, 1,0,
-        // Direita (Gato)
-         0.5, -0.5, -0.5, 0,1,   0.5,  0.5, -0.5, 0,0,   0.5,  0.5,  0.5, 1,0,
-         0.5, -0.5, -0.5, 0,1,   0.5,  0.5,  0.5, 1,0,   0.5, -0.5,  0.5, 1,1,
-        // Esquerda (Cachorro)
-        -0.5, -0.5, -0.5, 0,1,  -0.5, -0.5,  0.5, 1,1,  -0.5,  0.5,  0.5, 1,0,
-        -0.5, -0.5, -0.5, 0,1,  -0.5,  0.5,  0.5, 1,0,  -0.5,  0.5, -0.5, 0,0
+        // Frente (Gato) - Cor Branca (1,1,1,1) para não interferir na textura
+        -0.5, -0.5,  0.5,  1,1,1,1,  0,1,   0.5, -0.5,  0.5,  1,1,1,1,  1,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,
+        -0.5, -0.5,  0.5,  1,1,1,1,  0,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,  -0.5,  0.5,  0.5,  1,1,1,1,  0,0,
+        // Atrás (Cachorro) - Cor Branca
+        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5, -0.5,  1,1,1,1,  1,0,   0.5, -0.5, -0.5,  1,1,1,1,  1,1,
+        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,  -0.5,  0.5, -0.5,  1,1,1,1,  0,0,   0.5,  0.5, -0.5,  1,1,1,1,  1,0,
+        // Topo (Gato) - Cor Branca
+        -0.5,  0.5, -0.5,  1,1,1,1,  0,1,  -0.5,  0.5,  0.5,  1,1,1,1,  0,0,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,
+        -0.5,  0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,   0.5,  0.5, -0.5,  1,1,1,1,  1,1,
+        // Baixo (Cachorro) - Cor Branca
+        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5, -0.5,  0.5,  1,1,1,1,  1,0,  -0.5, -0.5,  0.5,  1,1,1,1,  0,0,
+        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5, -0.5, -0.5,  1,1,1,1,  1,1,   0.5, -0.5,  0.5,  1,1,1,1,  1,0,
+        // Direita (Gato) - Cor Branca
+         0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5, -0.5,  1,1,1,1,  0,0,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,
+         0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,   0.5, -0.5,  0.5,  1,1,1,1,  1,1,
+        // Esquerda (Cachorro) - Cor Branca
+        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,  -0.5, -0.5,  0.5,  1,1,1,1,  1,1,  -0.5,  0.5,  0.5,  1,1,1,1,  1,0,
+        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,  -0.5,  0.5,  0.5,  1,1,1,1,  1,0,  -0.5,  0.5, -0.5,  1,1,1,1,  0,0
     ]);
 
     var bufPtr = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufPtr);
     gl.bufferData(gl.ARRAY_BUFFER, v, gl.STATIC_DRAW);
 
+    // Stride total: 9 floats * 4 bytes = 36 bytes
+    var stride = 9 * 4;
+
+    // 1. Posição (X, Y, Z)
     var posPtr = gl.getAttribLocation(prog, "position");
     gl.enableVertexAttribArray(posPtr);
-    // 3 valores (X,Y,Z), pulando 5*4 bytes por bloco
-    gl.vertexAttribPointer(posPtr, 3, gl.FLOAT, false, 5 * 4, 0);
+    gl.vertexAttribPointer(posPtr, 3, gl.FLOAT, false, stride, 0);
 
-    var texPtr = gl.getAttribLocation(prog, "texCoord");
-    gl.enableVertexAttribArray(texPtr);
-    // 2 valores (U,V), começando após os 3 primeiros floats (3*4 bytes)
-    gl.vertexAttribPointer(texPtr, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
-        //submeter textura para gpu
-        var tex0 = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, tex0);
+    // 2. Cor (R, G, B, A) - Offset 3 floats (3 * 4 = 12 bytes)
+    var colorPtr = gl.getAttribLocation(prog, "color");
+    gl.enableVertexAttribArray(colorPtr);
+    gl.vertexAttribPointer(colorPtr, 4, gl.FLOAT, false, stride, 3 * 4);
+
+    // 3. Textura (U, V) - Offset 7 floats (7 * 4 = 28 bytes)
+    var texCoordPtr = gl.getAttribLocation(prog, "texCoord");
+    gl.enableVertexAttribArray(texCoordPtr);
+    gl.vertexAttribPointer(texCoordPtr, 2, gl.FLOAT, false, stride, 7 * 4);
+
+    // --- Submeter texturas (Tex0 e Tex1) ---
+    function setupTex(id, img) {
+        var tex = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0 + id);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);        
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, teximg[0]);
-        
-        var tex1 = gl.createTexture();
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, tex1);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);        
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, teximg[1]);
-}                
-
-// webgl.js
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    }
+    setupTex(0, teximg[0]);
+    setupTex(1, teximg[1]);
+}         
 
 function draw() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); //Z-buffer
-    gl.enable(gl.DEPTH_TEST); //Z-buffer
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST); 
 
-    // 1. Matrizes
+    // 1. Matrizes 
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(camPos, [0,0,0], [0,1,0]);
     var mModel = m4ComputeModelMatrix([0, 0, 0], angle, angle * 0.5, 0, [1, 1, 1]); 
     
-    // 2. Multiplicação na ordem correta: Projeção * View * Model
     var mVP = m4Multiply(mProj, mView);
     var matFinal = m4Multiply(mVP, mModel);
 
-    // 3. Enviar matriz para o Shader
+    // 2. Enviar uniformes
     var transfPtr = gl.getUniformLocation(prog, "transf");
     gl.uniformMatrix4fv(transfPtr, false, matFinal);
 
     var texPtr = gl.getUniformLocation(prog, "tex"); 
+    var useTexPtr = gl.getUniformLocation(prog, "u_useTexture");
+
+    // Ativamos o uso de textura (1.0 = sim)
+    gl.uniform1f(useTexPtr, 1);
 
     for(var i = 0; i < 6; i++) {
-        // Agora o texPtr existe e pode ser usado
         gl.uniform1i(texPtr, i % 2); 
         gl.drawArrays(gl.TRIANGLES, i * 6, 6); 
     }

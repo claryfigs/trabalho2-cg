@@ -7,30 +7,40 @@
     <script src="matrizes.js"></script>
 
     <script id="vertex-shader" type="notjs">
-    attribute vec4 position;
-    attribute vec2 texCoord;
-    uniform mat4 transf;
+        attribute vec4 position;
+        attribute vec4 color;     // Atributo de cor 
+        attribute vec2 texCoord;  // Atributo de textura 
 
-    varying vec2 v_texCoord;
+        uniform mat4 transf;      //matriz Model-View-Projection
 
-    void main()
-    {
-        v_texCoord = texCoord;
-        gl_Position = transf*position;
-    }
+        varying vec4 v_color;
+        varying vec2 v_texCoord;
+
+        void main() {
+            v_color = color;
+            v_texCoord = texCoord;
+            gl_Position = transf * position;
+        }
     </script>
 
     <script id="frag-shader" type="notjs">
-    precision mediump float;
+        precision mediump float;
 
-    uniform sampler2D tex;
+        uniform sampler2D tex;
+        uniform float u_useTexture; // Interruptor: 0 = Cor, 1 = Textura
 
-    varying vec2 v_texCoord;
+        varying vec4 v_color;
+        varying vec2 v_texCoord;
 
-    void main()
-    {
-        gl_FragColor = texture2D(tex, v_texCoord);
-    }
+        void main() {
+            vec4 texColor = texture2D(tex, v_texCoord);
+            
+            if(u_useTexture > 0.5) {
+                gl_FragColor = texColor * v_color; // Combina os dois
+            } else {
+                gl_FragColor = v_color; // Usa apenas a cor do vértice
+            }
+        }
     </script>
 </head>
 
