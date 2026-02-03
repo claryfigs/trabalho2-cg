@@ -70,7 +70,6 @@ function m4RotationX(angleInDegrees) {
         0, 0, 0, 1
     ]);
 }
-// matrizes.js
 
 function m4ComputeModelMatrix(translation, rx, ry, rz, scale) {
     // 1. Matrizes básicas
@@ -106,4 +105,11 @@ function m4Perspective(fovyInDegrees, aspect, near, far) {
 
 function m4LookAt(cameraPos, target, up) {
     return m4Translation(-cameraPos[0], -cameraPos[1], -cameraPos[2]);
+}
+
+function m4RotationMatrix(rx, ry, rz) {
+    var mX = m4RotationX(rx);
+    var mY = m4RotationY(ry);
+    var mZ = m4RotationZ(rz);
+    return m4Multiply(mY, m4Multiply(mX, mZ));
 }

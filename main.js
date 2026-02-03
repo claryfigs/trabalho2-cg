@@ -106,49 +106,41 @@ function initGL()
 }    
 
 function configScene() {
-    // Estrutura: X, Y, Z,  R, G, B, A,  U, V
+    // X, Y, Z,  NX, NY, NZ,  U, V
     var v = new Float32Array([
-        // Frente (Gato) - Cor Branca (1,1,1,1) para não interferir na textura
-        -0.5, -0.5,  0.5,  1,1,1,1,  0,1,   0.5, -0.5,  0.5,  1,1,1,1,  1,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,
-        -0.5, -0.5,  0.5,  1,1,1,1,  0,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,  -0.5,  0.5,  0.5,  1,1,1,1,  0,0,
-        // Atrás (Cachorro) - Cor Branca
-        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5, -0.5,  1,1,1,1,  1,0,   0.5, -0.5, -0.5,  1,1,1,1,  1,1,
-        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,  -0.5,  0.5, -0.5,  1,1,1,1,  0,0,   0.5,  0.5, -0.5,  1,1,1,1,  1,0,
-        // Topo (Gato) - Cor Branca
-        -0.5,  0.5, -0.5,  1,1,1,1,  0,1,  -0.5,  0.5,  0.5,  1,1,1,1,  0,0,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,
-        -0.5,  0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,   0.5,  0.5, -0.5,  1,1,1,1,  1,1,
-        // Baixo (Cachorro) - Cor Branca
-        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5, -0.5,  0.5,  1,1,1,1,  1,0,  -0.5, -0.5,  0.5,  1,1,1,1,  0,0,
-        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5, -0.5, -0.5,  1,1,1,1,  1,1,   0.5, -0.5,  0.5,  1,1,1,1,  1,0,
-        // Direita (Gato) - Cor Branca
-         0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5, -0.5,  1,1,1,1,  0,0,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,
-         0.5, -0.5, -0.5,  1,1,1,1,  0,1,   0.5,  0.5,  0.5,  1,1,1,1,  1,0,   0.5, -0.5,  0.5,  1,1,1,1,  1,1,
-        // Esquerda (Cachorro) - Cor Branca
-        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,  -0.5, -0.5,  0.5,  1,1,1,1,  1,1,  -0.5,  0.5,  0.5,  1,1,1,1,  1,0,
-        -0.5, -0.5, -0.5,  1,1,1,1,  0,1,  -0.5,  0.5,  0.5,  1,1,1,1,  1,0,  -0.5,  0.5, -0.5,  1,1,1,1,  0,0
+        // Frente (Normal: 0,0,1)
+        -0.5, -0.5,  0.5,  0,0,1,  0,1,   0.5, -0.5,  0.5,  0,0,1,  1,1,   0.5,  0.5,  0.5,  0,0,1,  1,0,
+        -0.5, -0.5,  0.5,  0,0,1,  0,1,   0.5,  0.5,  0.5,  0,0,1,  1,0,  -0.5,  0.5,  0.5,  0,0,1,  0,0,
+        // Atrás (Normal: 0,0,-1)
+        -0.5, -0.5, -0.5,  0,0,-1, 0,1,   0.5,  0.5, -0.5,  0,0,-1, 1,0,   0.5, -0.5, -0.5,  0,0,-1, 1,1,
+        -0.5, -0.5, -0.5,  0,0,-1, 0,1,  -0.5,  0.5, -0.5,  0,0,-1, 0,0,   0.5,  0.5, -0.5,  0,0,-1, 1,0,
+        // Topo (Normal: 0,1,0)
+        -0.5,  0.5, -0.5,  0,1,0,  0,1,  -0.5,  0.5,  0.5,  0,1,0,  0,0,   0.5,  0.5,  0.5,  0,1,0,  1,0,
+        -0.5,  0.5, -0.5,  0,1,0,  0,1,   0.5,  0.5,  0.5,  0,1,0,  1,0,   0.5,  0.5, -0.5,  0,1,0,  1,1,
+        // Baixo (Normal: 0,-1,0)
+        -0.5, -0.5, -0.5,  0,-1,0, 0,1,   0.5, -0.5,  0.5,  0,-1,0, 1,0,  -0.5, -0.5,  0.5,  0,-1,0, 0,0,
+        -0.5, -0.5, -0.5,  0,-1,0, 0,1,   0.5, -0.5, -0.5,  0,-1,0, 1,1,   0.5, -0.5,  0.5,  0,-1,0, 1,0,
+        // Direita (Normal: 1,0,0)
+         0.5, -0.5, -0.5,  1,0,0,  0,1,   0.5,  0.5, -0.5,  1,0,0,  0,0,   0.5,  0.5,  0.5,  1,0,0,  1,0,
+         0.5, -0.5, -0.5,  1,0,0,  0,1,   0.5,  0.5,  0.5,  1,0,0,  1,0,   0.5, -0.5,  0.5,  1,0,0,  1,1,
+        // Esquerda (Normal: -1,0,0)
+        -0.5, -0.5, -0.5, -1,0,0,  0,1,  -0.5, -0.5,  0.5, -1,0,0,  1,1,  -0.5,  0.5,  0.5, -1,0,0,  1,0,
+        -0.5, -0.5, -0.5, -1,0,0,  0,1,  -0.5,  0.5,  0.5, -1,0,0,  1,0,  -0.5,  0.5, -0.5, -1,0,0,  0,0
     ]);
 
     var bufPtr = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufPtr);
     gl.bufferData(gl.ARRAY_BUFFER, v, gl.STATIC_DRAW);
 
-    // Stride total: 9 floats * 4 bytes = 36 bytes
-    var stride = 9 * 4;
+    var stride = 8 * 4;
+    gl.vertexAttribPointer(gl.getAttribLocation(prog, "position"), 3, gl.FLOAT, false, stride, 0);
+    gl.enableVertexAttribArray(gl.getAttribLocation(prog, "position"));
 
-    // 1. Posição (X, Y, Z)
-    var posPtr = gl.getAttribLocation(prog, "position");
-    gl.enableVertexAttribArray(posPtr);
-    gl.vertexAttribPointer(posPtr, 3, gl.FLOAT, false, stride, 0);
+    gl.vertexAttribPointer(gl.getAttribLocation(prog, "normal"), 3, gl.FLOAT, false, stride, 3 * 4);
+    gl.enableVertexAttribArray(gl.getAttribLocation(prog, "normal"));
 
-    // 2. Cor (R, G, B, A) - Offset 3 floats (3 * 4 = 12 bytes)
-    var colorPtr = gl.getAttribLocation(prog, "color");
-    gl.enableVertexAttribArray(colorPtr);
-    gl.vertexAttribPointer(colorPtr, 4, gl.FLOAT, false, stride, 3 * 4);
-
-    // 3. Textura (U, V) - Offset 7 floats (7 * 4 = 28 bytes)
-    var texCoordPtr = gl.getAttribLocation(prog, "texCoord");
-    gl.enableVertexAttribArray(texCoordPtr);
-    gl.vertexAttribPointer(texCoordPtr, 2, gl.FLOAT, false, stride, 7 * 4);
+    gl.vertexAttribPointer(gl.getAttribLocation(prog, "texCoord"), 2, gl.FLOAT, false, stride, 6 * 4);
+    gl.enableVertexAttribArray(gl.getAttribLocation(prog, "texCoord"));
 
     // --- Submeter texturas (Tex0 e Tex1) ---
     function setupTex(id, img) {
@@ -167,29 +159,31 @@ function configScene() {
 
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST); 
+    gl.enable(gl.DEPTH_TEST);
 
-    // 1. Matrizes 
+    // 1. Matrizes
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(camPos, [0,0,0], [0,1,0]);
-    var mModel = m4ComputeModelMatrix([0, 0, 0], angle, angle * 0.5, 0, [1, 1, 1]); 
+    var mModel = m4ComputeModelMatrix([0, 0, 0], angle, angle * 0.5, 0, [1, 1, 1]);
     
     var mVP = m4Multiply(mProj, mView);
-    var matFinal = m4Multiply(mVP, mModel);
+    var mFinal = m4Multiply(mVP, mModel);
 
-    // 2. Enviar uniformes
-    var transfPtr = gl.getUniformLocation(prog, "transf");
-    gl.uniformMatrix4fv(transfPtr, false, matFinal);
-
-    var texPtr = gl.getUniformLocation(prog, "tex"); 
+    // 2. Uniformes do Shader
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "transf"), false, mFinal);
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "u_model"), false, mModel);
+    
+    // Luz fixa no mundo (Ex: uma lâmpada no teto)
+    gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [0.0, 0.0, 5.0]);
+    gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), camPos);
+    // Dentro da função draw(), logo após enviar u_viewPos
     var useTexPtr = gl.getUniformLocation(prog, "u_useTexture");
+    gl.uniform1f(useTexPtr, 1.0); // 1.0 para ver o gato/cachorro
 
-    // Ativamos o uso de textura (1.0 = sim)
-    gl.uniform1f(useTexPtr, 1);
-
+    var texPtr = gl.getUniformLocation(prog, "tex");
     for(var i = 0; i < 6; i++) {
-        gl.uniform1i(texPtr, i % 2); 
-        gl.drawArrays(gl.TRIANGLES, i * 6, 6); 
+        gl.uniform1i(texPtr, i % 2);
+        gl.drawArrays(gl.TRIANGLES, i * 6, 6);
     }
 
     angle++;
