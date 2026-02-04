@@ -44,9 +44,9 @@ window.addEventListener("keydown", (e) => {
 async function init() {
     try {
         // Carrega os arquivos OBJ
-        dadosRato = await carregarOBJ("rato.obj");
-        dadosPiso = await carregarOBJ("piso.obj");
-        dadosQueijo = await carregarOBJ("queijo.obj"); // Carregando o queijo
+        dadosRato = await carregarOBJ("rato.obj", false);
+        dadosPiso = await carregarOBJ("piso.obj", false);
+        dadosQueijo = await carregarOBJ("queijo.obj",true); // Carregando o queijo
         
         if (dadosRato && dadosPiso) {
             initGL();
