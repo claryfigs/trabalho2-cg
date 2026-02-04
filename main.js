@@ -8,9 +8,9 @@ var camFront = [0, 0, -1];
 var angle = 0;
 
 // Dados dos Objetos e Buffers
-var dadosRato, dadosPiso;
-var bufRato, bufPiso;
-var texGato; 
+var dadosRato, dadosPiso, dadosQueijo; // Adicionado dadosQueijo
+var bufRato, bufPiso, bufQueijo;       // Adicionado bufQueijo
+var texGato;
 
 // --- ENTRADA DE DADOS ---
 window.addEventListener("mousedown", () => {
@@ -46,6 +46,7 @@ async function init() {
         // Carrega os arquivos OBJ
         dadosRato = await carregarOBJ("rato.obj");
         dadosPiso = await carregarOBJ("piso.obj");
+        dadosQueijo = await carregarOBJ("queijo.obj"); // Carregando o queijo
         
         if (dadosRato && dadosPiso) {
             initGL();
@@ -85,6 +86,11 @@ function configScene() {
     bufPiso = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufPiso);
     gl.bufferData(gl.ARRAY_BUFFER, dadosPiso, gl.STATIC_DRAW);
+
+    //Buffer do queijo
+    bufQueijo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufQueijo);
+    gl.bufferData(gl.ARRAY_BUFFER, dadosQueijo, gl.STATIC_DRAW);
 }
 
 function carregarTextura(url) {
@@ -167,8 +173,21 @@ function draw() {
     bindGeometria(bufPiso);
     gl.drawArrays(gl.TRIANGLES, 0, dadosPiso.length / 8);
 
+    // --- DESENHANDO O QUEIJO (GIRANDO) ---
+    gl.uniform1f(uUseTexture, 0.0); // Sem textura, como o rato
+    // Posicionado em [3, 0, -5] para ficar ao lado do rato
+    var mModelQueijo = m4ComputeModelMatrix([3, 0, -5], 0, angle, 0, [1, 1, 1]); 
+    gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelQueijo));
+    gl.uniformMatrix4fv(uModel, false, mModelQueijo);
+    bindGeometria(bufQueijo);
+    gl.drawArrays(gl.TRIANGLES, 0, dadosQueijo.length / 8);
+
+    // --- DESENHANDO O PISO ---
+    // (seu código original do piso aqui)
+
     angle += 1; 
     requestAnimationFrame(draw);
+
 }
 
 // Funções de utilidade padrão
