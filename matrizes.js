@@ -12,7 +12,7 @@ function m4Multiply(a, b) {
     return out;
 }
 
-// 2. Translação 3D
+
 function m4Translation(tx, ty, tz) {
     return new Float32Array([
         1,  0,  0,  0,
@@ -22,7 +22,7 @@ function m4Translation(tx, ty, tz) {
     ]);
 }
 
-// 3. Escala 3D
+
 function m4Scale(sx, sy, sz) {
     return new Float32Array([
         sx, 0,  0,  0,
@@ -32,7 +32,7 @@ function m4Scale(sx, sy, sz) {
     ]);
 }
 
-// 4. Rotação no eixo Z (a que você já testou)
+
 function m4RotationZ(angleInDegrees) {
     var rad = angleInDegrees * Math.PI / 180;
     var c = Math.cos(rad);
@@ -45,7 +45,6 @@ function m4RotationZ(angleInDegrees) {
     ]);
 }
 
-// 5. Rotação no eixo Y (importante para girar o personagem no chão)
 function m4RotationY(angleInDegrees) {
     var rad = angleInDegrees * Math.PI / 180;
     var c = Math.cos(rad);
@@ -58,7 +57,6 @@ function m4RotationY(angleInDegrees) {
     ]);
 }
 
-// 6. Rotação no eixo X
 function m4RotationX(angleInDegrees) {
     var rad = angleInDegrees * Math.PI / 180;
     var c = Math.cos(rad);
@@ -70,22 +68,16 @@ function m4RotationX(angleInDegrees) {
         0, 0, 0, 1
     ]);
 }
-// matrizes.js
 
 function m4ComputeModelMatrix(translation, rx, ry, rz, scale) {
-    // 1. Matrizes básicas
     var matTra = m4Translation(translation[0], translation[1], translation[2]);
     var matEsc = m4Scale(scale[0], scale[1], scale[2]);
-    
-    // 2. Matrizes de rotação individuais
     var mX = m4RotationX(rx);
     var mY = m4RotationY(ry);
     var mZ = m4RotationZ(rz);
 
-    // 3. Combina as rotações: R = RY * RX * RZ (A ordem altera o resultado)
     var matRot = m4Multiply(mY, m4Multiply(mX, mZ));
 
-    // 4. Combina tudo: T * R * S
     var matTemp = m4Multiply(matRot, matEsc);
     var matFinal = m4Multiply(matTra, matTemp);
 
@@ -104,6 +96,43 @@ function m4Perspective(fovyInDegrees, aspect, near, far) {
     ]);
 }
 
-function m4LookAt(cameraPos, target, up) {
-    return m4Translation(-cameraPos[0], -cameraPos[1], -cameraPos[2]);
+function m4LookAt(eye, target, up) {
+    //  Calcula os eixos da câmera (Z, X, Y)
+    // Zc = normalize(eye - target)
+    var z0 = eye[0] - target[0];
+    var z1 = eye[1] - target[1];
+    var z2 = eye[2] - target[2];
+    var lenZ = Math.sqrt(z0*z0 + z1*z1 + z2*z2);
+    z0 /= lenZ; z1 /= lenZ; z2 /= lenZ;
+
+    // Xc = normalize(cross(up, Zc))
+    var x0 = up[1] * z2 - up[2] * z1;
+    var x1 = up[2] * z0 - up[0] * z2;
+    var x2 = up[0] * z1 - up[1] * z0;
+    var lenX = Math.sqrt(x0*x0 + x1*x1 + x2*x2);
+    x0 /= lenX; x1 /= lenX; x2 /= lenX;
+
+    // Yc = cross(Zc, Xc)
+    var y0 = z1 * x2 - z2 * x1;
+    var y1 = z2 * x0 - z0 * x2;
+    var y2 = z0 * x1 - z1 * x0;
+
+    // Cria a matriz de translação inversa e a matriz de rotação da câmera
+    // No final, retornamos R * T
+    return new Float32Array([
+        x0, y0, z0, 0,
+        x1, y1, z1, 0,
+        x2, y2, z2, 0,
+        -(x0 * eye[0] + x1 * eye[1] + x2 * eye[2]),
+        -(y0 * eye[0] + y1 * eye[1] + y2 * eye[2]),
+        -(z0 * eye[0] + z1 * eye[1] + z2 * eye[2]),
+        1
+    ]);
+}
+
+function m4RotationMatrix(rx, ry, rz) {
+    var mX = m4RotationX(rx);
+    var mY = m4RotationY(ry);
+    var mZ = m4RotationZ(rz);
+    return m4Multiply(mY, m4Multiply(mX, mZ));
 }
