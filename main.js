@@ -13,10 +13,9 @@ var teclas = {
     d: false
 };
 
-// Variáveis auxiliares para cálculo de direção
 var cameraFront = [0, 0, -1]; 
 
-// Dados dos Objetos e Buffers
+
 var dadosRato, dadosPiso, dadosQueijo, dadosPlantas; 
 var bufRato, bufPiso, bufQueijo, bufPlantas;       
 var texTijolo;
@@ -102,7 +101,7 @@ async function init() {
         dadosRato = await carregarOBJ("rato.obj", false);
         dadosPiso = await carregarOBJ("piso.obj", false);
         dadosQueijo = await carregarOBJ("queijo.obj", true);
-        dadosPlantas = await carregarOBJ("plantas.obj", true); 
+        dadosPlantas = await carregarOBJ("plantas.obj", false); 
         
         if (dadosRato && dadosPiso) {
             initGL();
@@ -128,6 +127,8 @@ function initGL() {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0.1, 0.1, 0.1, 1.0);
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 }
 
@@ -148,6 +149,8 @@ function configScene() {
     gl.bindBuffer(gl.ARRAY_BUFFER, bufPlantas);
     gl.bufferData(gl.ARRAY_BUFFER, dadosPlantas, gl.STATIC_DRAW);
 }
+
+function isPowerOf2(value) { return (value & (value - 1)) == 0; }
 
 function carregarTextura(url) {
     var tex = gl.createTexture();
@@ -170,8 +173,6 @@ function carregarTextura(url) {
     return tex;
 }
 
-function isPowerOf2(value) { return (value & (value - 1)) == 0; }
-
 function bindGeometria(buffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     var stride = 8 * 4;
@@ -190,7 +191,6 @@ function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     processarMovimento(); 
 
-    // --- MUDANÇA 3: Atualiza a Câmera baseada no Rato ---
     
     // 1. Calcula onde a câmera está olhando (Front Vector)
     var radYaw = ratoYaw * Math.PI / 180;
@@ -222,20 +222,6 @@ function draw() {
     
     gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 10.0]);
     gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), olhosPos);
-
-    // --- DESENHO DA CENA ---
-
-    // NOTA: Comentei o desenho do RATO.
-    // Como estamos em 1ª pessoa, não desenhamos o próprio corpo para não bloquear a visão.
-    /*
-    gl.uniform1f(uUseTexture, 0.0); 
-    gl.uniform3fv(uBaseColor, [0.4, 0.2, 0.1]); 
-    var mModelRato = m4ComputeModelMatrix(ratoPos, 0, -ratoYaw, 0, [0.08, 0.08, 0.08]);
-    gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelRato));
-    gl.uniformMatrix4fv(uModel, false, mModelRato);
-    bindGeometria(bufRato);
-    gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8);
-    */
 
     // --- DESENHANDO O PISO ---
     gl.uniform1f(uUseTexture, 1.0); 
@@ -277,7 +263,6 @@ function draw() {
     requestAnimationFrame(draw);
 }
 
-// Funções padrão (createShader, createProgram...) mantidas iguais
 function createShader(gl, type, src) {
     var s = gl.createShader(type);
     gl.shaderSource(s, src);
