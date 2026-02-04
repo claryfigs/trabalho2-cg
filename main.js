@@ -1,15 +1,17 @@
 var gl, prog;
 
-// Variáveis de Câmera 3D
-var camPos = [0, 5, 15];
-var yaw = -90; 
-var pitch = 0;
-var camFront = [0, 0, -1];
-var angle = 0;
+// --- MUDANÇA 1: Variáveis do Jogador (Rato) ---
+// Em vez de camPos, agora temos a posição do Rato no mundo
+var ratoPos = [0, 0, 5]; // Começa um pouco afastado em Z
+var ratoYaw = -90;       // Rotação do corpo (Esquerda/Direita)
+var ratoPitch = 0;       // Rotação da cabeça (Cima/Baixo)
+
+// Variáveis auxiliares para cálculo de direção
+var cameraFront = [0, 0, -1]; 
 
 // Dados dos Objetos e Buffers
-var dadosRato, dadosPiso, dadosQueijo; // Adicionado dadosQueijo
-var bufRato, bufPiso, bufQueijo;       // Adicionado bufQueijo
+var dadosRato, dadosPiso, dadosQueijo; 
+var bufRato, bufPiso, bufQueijo;       
 var texTijolo;
 
 // --- ENTRADA DE DADOS ---
@@ -20,38 +22,51 @@ window.addEventListener("mousedown", () => {
 
 window.addEventListener("mousemove", (e) => {
     if (document.pointerLockElement === document.getElementById("glcanvas1")) {
-        var sensitivity = 0.2;
-        yaw += e.movementX * sensitivity;
-        pitch -= e.movementY * sensitivity;
-        if (pitch > 89) pitch = 89;
-        if (pitch < -89) pitch = -89;
+        var sensitivity = 0.15; // Sensibilidade do mouse
+        ratoYaw += e.movementX * sensitivity;
+        ratoPitch -= e.movementY * sensitivity;
 
-        var radYaw = yaw * Math.PI / 180;
-        var radPitch = pitch * Math.PI / 180;
-        camFront[0] = Math.cos(radYaw) * Math.cos(radPitch);
-        camFront[1] = Math.sin(radPitch);
-        camFront[2] = Math.sin(radYaw) * Math.cos(radPitch);
+        // Trava para não quebrar o pescoço (olhar muito pra cima ou baixo)
+        if (ratoPitch > 89) ratoPitch = 89;
+        if (ratoPitch < -89) ratoPitch = -89;
     }
 });
 
 window.addEventListener("keydown", (e) => {
-    var speed = 0.5;
-    if(e.key == "w") { camPos[0] += camFront[0] * speed; camPos[1] += camFront[1] * speed; camPos[2] += camFront[2] * speed; }
-    if(e.key == "s") { camPos[0] -= camFront[0] * speed; camPos[1] -= camFront[1] * speed; camPos[2] -= camFront[2] * speed; }
+    var speed = 1; // Velocidade de movimento do rato
+
+    // --- MUDANÇA 2: Cálculo da direção de movimento ---
+    // Precisamos saber para onde é "Frente" baseado APENAS no Yaw (chão horizontal)
+    // Se usarmos o Pitch aqui, o rato voaria ao olhar para cima
+    var radYaw = ratoYaw * Math.PI / 180;
+    
+    var frenteX = Math.cos(radYaw);
+    var frenteZ = Math.sin(radYaw);
+
+    // W = Anda na direção da frente
+    if(e.key == "w") { 
+        ratoPos[0] += frenteX * speed; 
+        ratoPos[2] += frenteZ * speed; 
+    }
+    // S = Anda na direção oposta
+    if(e.key == "s") { 
+        ratoPos[0] -= frenteX * speed; 
+        ratoPos[2] -= frenteZ * speed; 
+    }
+    
+    // Dica: Futuramente aqui entra a verificação de colisão!
 });
 
 // --- INICIALIZAÇÃO ---
 async function init() {
     try {
-        // Carrega os arquivos OBJ
         dadosRato = await carregarOBJ("rato.obj", false);
         dadosPiso = await carregarOBJ("piso.obj", false);
-        dadosQueijo = await carregarOBJ("queijo.obj",true); // Carregando o queijo
+        dadosQueijo = await carregarOBJ("queijo.obj", true); 
         
         if (dadosRato && dadosPiso) {
             initGL();
             configScene();
-            // Carrega a textura do Tijolo
             texTijolo = carregarTextura("Tijolo.jpg"); 
             draw();
         }
@@ -77,17 +92,14 @@ function initGL() {
 }
 
 function configScene() {
-    // Buffer do Rato
     bufRato = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufRato);
     gl.bufferData(gl.ARRAY_BUFFER, dadosRato, gl.STATIC_DRAW);
 
-    // Buffer do Piso
     bufPiso = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufPiso);
     gl.bufferData(gl.ARRAY_BUFFER, dadosPiso, gl.STATIC_DRAW);
 
-    //Buffer do queijo
     bufQueijo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufQueijo);
     gl.bufferData(gl.ARRAY_BUFFER, dadosQueijo, gl.STATIC_DRAW);
@@ -96,17 +108,12 @@ function configScene() {
 function carregarTextura(url) {
     var tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, tex);
-
-    // Cor temporária (azul) enquanto a imagem carrega
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
-
     var img = new Image();
-    img.crossOrigin = "anonymous"; // Vital para evitar que a textura fique preta por erro de segurança
+    img.crossOrigin = "anonymous"; 
     img.onload = function() {
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-
-        // Ajuste para aceitar qualquer tamanho de imagem (NPOT)
         if (isPowerOf2(img.width) && isPowerOf2(img.height)) {
             gl.generateMipmap(gl.TEXTURE_2D);
         } else {
@@ -119,9 +126,7 @@ function carregarTextura(url) {
     return tex;
 }
 
-function isPowerOf2(value) {
-    return (value & (value - 1)) == 0;
-}
+function isPowerOf2(value) { return (value & (value - 1)) == 0; }
 
 function bindGeometria(buffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -129,7 +134,6 @@ function bindGeometria(buffer) {
     var locPos = gl.getAttribLocation(prog, "position");
     var locNorm = gl.getAttribLocation(prog, "normal");
     var locTex = gl.getAttribLocation(prog, "texCoord");
-
     gl.enableVertexAttribArray(locPos);
     gl.vertexAttribPointer(locPos, 3, gl.FLOAT, false, stride, 0);
     gl.enableVertexAttribArray(locNorm);
@@ -141,9 +145,29 @@ function bindGeometria(buffer) {
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
-    var target = [camPos[0] + camFront[0], camPos[1] + camFront[1], camPos[2] + camFront[2]];
-    var mView = m4LookAt(camPos, target, [0, 1, 0]);
+    // --- MUDANÇA 3: Atualiza a Câmera baseada no Rato ---
+    
+    // 1. Calcula onde a câmera está olhando (Front Vector)
+    var radYaw = ratoYaw * Math.PI / 180;
+    var radPitch = ratoPitch * Math.PI / 180;
+    
+    cameraFront[0] = Math.cos(radYaw) * Math.cos(radPitch);
+    cameraFront[1] = Math.sin(radPitch);
+    cameraFront[2] = Math.sin(radYaw) * Math.cos(radPitch);
+
+    // 2. Define a posição da câmera (Posição do Rato + Altura dos Olhos)
+    // O rato está no chão (Y=0), os olhos ficam em Y=0.5 (por exemplo)
+    var olhosPos = [ratoPos[0], ratoPos[1] + 0.9, ratoPos[2]];
+    
+    // 3. O Alvo é a posição dos olhos + o vetor frente
+    var target = [
+        olhosPos[0] + cameraFront[0],
+        olhosPos[1] + cameraFront[1],
+        olhosPos[2] + cameraFront[2]
+    ];
+
+    var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 70);
+    var mView = m4LookAt(olhosPos, target, [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
 
     var uTransf = gl.getUniformLocation(prog, "transf");
@@ -152,47 +176,52 @@ function draw() {
     var uBaseColor = gl.getUniformLocation(prog, "u_baseColor");
     
     gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 10.0]);
-    gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), camPos);
+    gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), olhosPos);
 
-    // --- DESENHANDO O RATO (GIRANDO E SEM TEXTURA) ---
+    // --- DESENHO DA CENA ---
 
+    // NOTA: Comentei o desenho do RATO.
+    // Como estamos em 1ª pessoa, não desenhamos o próprio corpo para não bloquear a visão.
+    /*
     gl.uniform1f(uUseTexture, 0.0); 
-    gl.uniform3fv(uBaseColor, [0.4, 0.2, 0.1]); // MOLHANDO O PINCEL NO MARROM
-
-    var mModelRato = m4ComputeModelMatrix([0, 0, -5], 0, angle, 0, [0.08, 0.08, 0.08]);
+    gl.uniform3fv(uBaseColor, [0.4, 0.2, 0.1]); 
+    var mModelRato = m4ComputeModelMatrix(ratoPos, 0, -ratoYaw, 0, [0.08, 0.08, 0.08]);
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelRato));
     gl.uniformMatrix4fv(uModel, false, mModelRato);
     bindGeometria(bufRato);
-    gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8); // PINTA O RATO
+    gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8);
+    */
 
-    // --- DESENHANDO O PISO (ESTÁTICO E COM TEXTURA) ---
+    // --- DESENHANDO O PISO ---
     gl.uniform1f(uUseTexture, 1.0); 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texTijolo);
     gl.uniform1i(gl.getUniformLocation(prog, "u_sampler"), 0);
 
-    var mModelPiso = m4ComputeModelMatrix([0, -1, -5], 0, 0, 0, [2.0, 2.0, 2.0]);
+    // Piso grande para podermos andar bastante
+    var mModelPiso = m4ComputeModelMatrix([0, -1, 0], 0, 0, 0, [2.5, 1.0, 2.5]);
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelPiso));
     gl.uniformMatrix4fv(uModel, false, mModelPiso);
     bindGeometria(bufPiso);
     gl.drawArrays(gl.TRIANGLES, 0, dadosPiso.length / 8);
 
-    // --- DESENHANDO O QUEIJO (GIRANDO) ---
+    // --- DESENHANDO O QUEIJO ---
+    // Coloquei ele um pouco mais longe para você ter que andar até ele
     gl.uniform1f(uUseTexture, 0.0); 
-    gl.uniform3fv(uBaseColor, [1.0, 0.8, 0.0]); // MOLHANDO O PINCEL NO AMARELO
+    gl.uniform3fv(uBaseColor, [1.0, 0.8, 0.0]); 
 
-    var mModelQueijo = m4ComputeModelMatrix([3, 0, -5], 0, angle, 0, [1, 1, 1]); 
+    // Gira o queijo devagarzinho
+    var anguloQueijo = performance.now() / 20; 
+    var mModelQueijo = m4ComputeModelMatrix([5, 0, -10], 0, anguloQueijo, 0, [1, 1, 1]); 
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelQueijo));
     gl.uniformMatrix4fv(uModel, false, mModelQueijo);
     bindGeometria(bufQueijo);
-    gl.drawArrays(gl.TRIANGLES, 0, dadosQueijo.length / 8); // PINTA O QUEIJO
+    gl.drawArrays(gl.TRIANGLES, 0, dadosQueijo.length / 8); 
 
-        angle += 1; 
-        requestAnimationFrame(draw);
+    requestAnimationFrame(draw);
+}
 
-    }
-
-// Funções de utilidade padrão
+// Funções padrão (createShader, createProgram...) mantidas iguais
 function createShader(gl, type, src) {
     var s = gl.createShader(type);
     gl.shaderSource(s, src);
