@@ -1,6 +1,9 @@
 var gl, prog;
 var ratoPos = [0, 0, 5]; // Posição inicial
 
+var queijosColetados = 0;
+var totalQueijos = 5;
+
 async function init() {
     var canvas = document.getElementById("glcanvas1");
     gl = canvas.getContext("webgl");
@@ -28,53 +31,47 @@ async function init() {
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // --- LÓGICA DE MOVIMENTO COM COLISÃO ---
-
-    // 1. Perguntamos ao Controle: "Onde o rato QUER ir?"
-    // (Nota: Certifique-se que seu controles.js tem a função 'simularProximaPosicao')
+    // 1. Lógica de Movimento
     var proximaPos = Controles.simularProximaPosicao(ratoPos);
-
-    // 2. Perguntamos à Colisão: "Ele PODE ir pra lá?"
     var resultado = Colisao.verificar(proximaPos, Cenario.objetos);
 
-    // 3. Decidimos o que fazer
     if (!resultado.colidiu) {
-        // Caminho livre! Atualiza a posição oficial.
         ratoPos = proximaPos;
     } 
     else {
-        // BATEU EM ALGO!
-        
-        if (resultado.tipo === 'objeto' && resultado.nome === 'queijo') {
-            // Se bateu no queijo, a gente "come" ele
-            console.log("NHAC! Queijo comido.");
+        // Se bateu em um objeto E o nome dele começa com "queijo"
+        if (resultado.tipo === 'objeto' && resultado.nome.startsWith('queijo')) {
             
-            // Desativa o queijo no cenário (ele para de ser desenhado e de colidir)
-            Cenario.objetos.queijo.ativo = false;
+            console.log("Pegou: " + resultado.nome);
             
-            // Permite andar para onde estava o queijo
+            // Remove ESSE queijo específico (queijo1, queijo2, etc)
+            Cenario.objetos[resultado.nome].ativo = false;
+            
+            // Atualiza Pontuação
+            queijosColetados++;
+            document.getElementById("contador").innerText = queijosColetados;
+
+            // Verifica Vitória
+            if (queijosColetados >= totalQueijos) {
+                document.getElementById("ui-vitoria").style.display = "block";
+            }
+            
+            // Permite andar (efeito de passar por cima)
             ratoPos = proximaPos;
         }
-        // Se for 'parede' ou 'plantas', não fazemos nada. 
-        // O ratoPos mantém o valor antigo, dando o efeito de "travar".
     }
 
-    // --- FIM DA LÓGICA DE MOVIMENTO ---
-
-
-    // 4. Atualiza a Câmera baseada na posição (nova ou velha)
+    // 2. Câmera
     var cam = Controles.getCameraInfo(ratoPos);
     
-    // Ajustei o Far Plane para 100 para ver mais longe
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(cam.eye, cam.target, [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
 
-    // Atualiza luz e posição da câmera no shader
     gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 10.0]);
     gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), cam.eye);
 
-    // 5. Manda desenhar tudo
+    // 3. Desenha
     Cenario.desenhar(gl, prog, mVP);
 
     requestAnimationFrame(draw);

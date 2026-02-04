@@ -6,11 +6,30 @@ var Cenario = {
             cor: [1, 1, 1], tex: "Tijolo.jpg", usaTextura: true,
             boxLocal: null // Vai guardar {min: [x,y,z], max: [x,y,z]}
         },
-        queijo: { 
+        queijo1: { 
             url: "queijo.obj", buffer: null, count: 0, ativo: true,
             pos: [5, 0, -10], scale: [1, 1, 1], rot: [0, 0, 0],
-            cor: [1.0, 0.8, 0.0], usaTextura: false,
-            boxLocal: null
+            cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null
+        },
+        queijo2: { 
+            url: "queijo.obj", buffer: null, count: 0, ativo: true,
+            pos: [-10, 0, 5], scale: [1, 1, 1], rot: [0, 45, 0],
+            cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null
+        },
+        queijo3: { 
+            url: "queijo.obj", buffer: null, count: 0, ativo: true,
+            pos: [0, 0, 15], scale: [1, 1, 1], rot: [0, 90, 0],
+            cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null
+        },
+        queijo4: { 
+            url: "queijo.obj", buffer: null, count: 0, ativo: true,
+            pos: [-15, 0, -15], scale: [1, 1, 1], rot: [0, 120, 0],
+            cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null
+        },
+        queijo5: { 
+            url: "queijo.obj", buffer: null, count: 0, ativo: true,
+            pos: [12, 0, 12], scale: [1, 1, 1], rot: [0, 180, 0],
+            cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null
         },
         plantas: { 
             url: "plantas.obj", buffer: null, count: 0, ativo: true,
@@ -22,13 +41,17 @@ var Cenario = {
 
     texTijolo: null,
 
-    async init(gl) {
+async init(gl) {
         try {
             this.texTijolo = this.carregarTextura(gl, "Tijolo.jpg");
 
             for (let chave in this.objetos) {
                 let obj = this.objetos[chave];
-                let dados = await carregarOBJ(obj.url, chave === 'queijo');
+                
+                // Agora usamos startsWith para pegar queijo1, queijo2, etc.
+                let deveInverter = chave.startsWith('queijo');
+                
+                let dados = await carregarOBJ(obj.url, deveInverter);
                 
                 if (dados) {
                     obj.buffer = gl.createBuffer();
@@ -36,7 +59,7 @@ var Cenario = {
                     gl.bufferData(gl.ARRAY_BUFFER, dados, gl.STATIC_DRAW);
                     obj.count = dados.length / 8;
                     
-                    // --- NOVO: Calculamos a caixa AABB local (sem escala/rotação) ---
+                    // Calculamos a caixa AABB local
                     obj.boxLocal = this.calcularAABB(dados);
                 }
             }
@@ -76,13 +99,17 @@ var Cenario = {
         var uBaseColor = gl.getUniformLocation(prog, "u_baseColor");
         var uTex = gl.getUniformLocation(prog, "tex");
 
-        // Gira o queijo
-        if(this.objetos.queijo.ativo) this.objetos.queijo.rot[1] += 1.0; 
-
         for (let chave in this.objetos) {
             let obj = this.objetos[chave];
+            
+            // Verifica se existe e se está ativo
             if (!obj.buffer || !obj.ativo) continue;
 
+            if (chave.startsWith('queijo')) {
+                obj.rot[1] += 1.0; 
+            }
+
+            // Configura Textura ou Cor
             if (obj.usaTextura) {
                 gl.uniform1f(uUseTexture, 1.0);
                 gl.activeTexture(gl.TEXTURE0);
@@ -93,6 +120,7 @@ var Cenario = {
                 gl.uniform3fv(uBaseColor, obj.cor);
             }
 
+            // Calcula Matriz e Desenha
             var mModel = m4ComputeModelMatrix(obj.pos, obj.rot[0], obj.rot[1], obj.rot[2], obj.scale);
             
             gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModel));
