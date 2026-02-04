@@ -1,21 +1,22 @@
-var teximg = [];
-var texSrc = ["gato.jpg", "cachorro.png"];
-var loadTexs = 0;
 var gl, prog;
 
-// Seus métodos de Câmera 3D
+// Variáveis de Câmera 3D
 var camPos = [0, 5, 15];
 var yaw = -90; 
 var pitch = 0;
 var camFront = [0, 0, -1];
 var angle = 0;
 
-// Buffers para os modelos
-var dadosParedes = null, dadosRato = null;
-var bufParedes, bufRato, bufCubo;
+// Dados dos Objetos e Buffers
+var dadosRato, dadosPiso;
+var bufRato, bufPiso;
+var texGato; 
 
-// --- INPUTS (Seus métodos) ---
-window.addEventListener("mousedown", () => document.getElementById("glcanvas1").requestPointerLock());
+// --- ENTRADA DE DADOS ---
+window.addEventListener("mousedown", () => {
+    const canvas = document.getElementById("glcanvas1");
+    if(canvas) canvas.requestPointerLock();
+});
 
 window.addEventListener("mousemove", (e) => {
     if (document.pointerLockElement === document.getElementById("glcanvas1")) {
@@ -42,22 +43,19 @@ window.addEventListener("keydown", (e) => {
 // --- INICIALIZAÇÃO ---
 async function init() {
     try {
-        dadosParedes = await carregarOBJ("paredes.obj");
+        // Carrega os arquivos OBJ
         dadosRato = await carregarOBJ("rato.obj");
-
-        for(let i = 0; i < texSrc.length; i++) {
-            teximg[i] = new Image();
-            teximg[i].src = texSrc[i];
-            teximg[i].onload = () => { loadTexs++; verificarCarga(); };
+        dadosPiso = await carregarOBJ("piso.obj");
+        
+        if (dadosRato && dadosPiso) {
+            initGL();
+            configScene();
+            // Carrega a textura do gato
+            texGato = carregarTextura("gato.jpg"); 
+            draw();
         }
-    } catch (e) { console.error("Erro:", e); }
-}
-
-function verificarCarga() {
-    if(loadTexs == texSrc.length && dadosParedes && dadosRato) {
-        initGL();
-        configScene();
-        draw();
+    } catch (e) { 
+        console.error("Erro ao inicializar cena:", e); 
     }
 }
 
@@ -74,57 +72,51 @@ function initGL() {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0.1, 0.1, 0.1, 1.0);
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 }
 
 function configScene() {
-    // 1. Dados do seu Cubo Manual (36 vértices)
-    var verticesCubo = new Float32Array([
-        // X, Y, Z,  NX, NY, NZ,  U, V
-        -0.5, -0.5,  0.5,  0,0,1,  0,1,   0.5, -0.5,  0.5,  0,0,1,  1,1,   0.5,  0.5,  0.5,  0,0,1,  1,0,
-        -0.5, -0.5,  0.5,  0,0,1,  0,1,   0.5,  0.5,  0.5,  0,0,1,  1,0,  -0.5,  0.5,  0.5,  0,0,1,  0,0,
-        -0.5, -0.5, -0.5,  0,0,-1, 0,1,   0.5,  0.5, -0.5,  0,0,-1, 1,0,   0.5, -0.5, -0.5,  0,0,-1, 1,1,
-        -0.5, -0.5, -0.5,  0,0,-1, 0,1,  -0.5,  0.5, -0.5,  0,0,-1, 0,0,   0.5,  0.5, -0.5,  0,0,-1, 1,0,
-        -0.5,  0.5, -0.5,  0,1,0,  0,1,  -0.5,  0.5,  0.5,  0,1,0,  0,0,   0.5,  0.5,  0.5,  0,1,0,  1,0,
-        -0.5,  0.5, -0.5,  0,1,0,  0,1,   0.5,  0.5,  0.5,  0,1,0,  1,0,   0.5,  0.5, -0.5,  0,1,0,  1,1,
-        -0.5, -0.5, -0.5,  0,-1,0, 0,1,   0.5, -0.5,  0.5,  0,-1,0, 1,0,  -0.5, -0.5,  0.5,  0,-1,0, 0,0,
-        -0.5, -0.5, -0.5,  0,-1,0, 0,1,   0.5, -0.5, -0.5,  0,-1,0, 1,1,   0.5, -0.5,  0.5,  0,-1,0, 1,0,
-         0.5, -0.5, -0.5,  1,0,0,  0,1,   0.5,  0.5, -0.5,  1,0,0,  0,0,   0.5,  0.5,  0.5,  1,0,0,  1,0,
-         0.5, -0.5, -0.5,  1,0,0,  0,1,   0.5,  0.5,  0.5,  1,0,0,  1,0,   0.5, -0.5,  0.5,  1,0,0,  1,1,
-        -0.5, -0.5, -0.5, -1,0,0,  0,1,  -0.5, -0.5,  0.5, -1,0,0,  1,1,  -0.5,  0.5,  0.5, -1,0,0,  1,0,
-        -0.5, -0.5, -0.5, -1,0,0,  0,1,  -0.5,  0.5,  0.5, -1,0,0,  1,0,  -0.5,  0.5, -0.5, -1,0,0,  0,0
-    ]);
-
-    // Criando o Buffer do Cubo
-    bufCubo = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufCubo);
-    gl.bufferData(gl.ARRAY_BUFFER, verticesCubo, gl.STATIC_DRAW);
-
-    // 2. Buffers dos OBJs (Paredes e Rato)
-    bufParedes = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufParedes);
-    gl.bufferData(gl.ARRAY_BUFFER, dadosParedes, gl.STATIC_DRAW);
-
+    // Buffer do Rato
     bufRato = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufRato);
     gl.bufferData(gl.ARRAY_BUFFER, dadosRato, gl.STATIC_DRAW);
 
-    setupTex(0, teximg[0]);
-    setupTex(1, teximg[1]);
+    // Buffer do Piso
+    bufPiso = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufPiso);
+    gl.bufferData(gl.ARRAY_BUFFER, dadosPiso, gl.STATIC_DRAW);
 }
 
-function setupTex(id, img) {
+function carregarTextura(url) {
     var tex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + id); 
     gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+
+    // Cor temporária (azul) enquanto a imagem carrega
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+
+    var img = new Image();
+    img.crossOrigin = "anonymous"; // Vital para evitar que a textura fique preta por erro de segurança
+    img.onload = function() {
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+
+        // Ajuste para aceitar qualquer tamanho de imagem (NPOT)
+        if (isPowerOf2(img.width) && isPowerOf2(img.height)) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+    };
+    img.src = url;
+    return tex;
 }
 
-// Método para ligar a geometria (Seu Stride de 8)
+function isPowerOf2(value) {
+    return (value & (value - 1)) == 0;
+}
+
 function bindGeometria(buffer) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     var stride = 8 * 4;
@@ -148,38 +140,38 @@ function draw() {
     var mView = m4LookAt(camPos, target, [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
 
-    // Uniforms
     var uTransf = gl.getUniformLocation(prog, "transf");
     var uModel = gl.getUniformLocation(prog, "u_model");
+    var uUseTexture = gl.getUniformLocation(prog, "u_useTexture");
+    
     gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 10.0]);
     gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), camPos);
 
-// --- 1. DESENHANDO O CUBO (Longe e Grande) ---
-    // Posicionamos o cubo em Z = -20 (longe)
-    gl.uniform1f(gl.getUniformLocation(prog, "u_useTexture"), 1.0); 
-    var mModelCubo = m4ComputeModelMatrix([0, 0, -20], angle, angle * 0.5, 0, [5, 5, 5]);
-    gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelCubo));
-    gl.uniformMatrix4fv(uModel, false, mModelCubo);
-    
-    // Como o cubo não veio do OBJ, usamos o bind para o buffer do cubo
-    bindGeometria(bufCubo); 
-    gl.uniform1i(gl.getUniformLocation(prog, "tex"), 0); // Textura do gato
-    gl.drawArrays(gl.TRIANGLES, 0, 36);
-
-    // --- 2. DESENHANDO O RATO (Bem posicionado na frente) ---
-    // Colocamos o rato em [0, -1, -5] (um pouco abaixo e na frente da câmera)
-    gl.uniform1f(gl.getUniformLocation(prog, "u_useTexture"), 0.0); 
-    var mModelRato = m4ComputeModelMatrix([0, -1, -5], 0, angle, 0, [0.08, 0.08, 0.08]);
+    // --- DESENHANDO O RATO (GIRANDO E SEM TEXTURA) ---
+    gl.uniform1f(uUseTexture, 0.0); 
+    var mModelRato = m4ComputeModelMatrix([0, 0, -5], 0, angle, 0, [0.08, 0.08, 0.08]);
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelRato));
     gl.uniformMatrix4fv(uModel, false, mModelRato);
-    
     bindGeometria(bufRato);
     gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8);
+
+    // --- DESENHANDO O PISO (ESTÁTICO E COM TEXTURA) ---
+    gl.uniform1f(uUseTexture, 1.0); 
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texGato);
+    gl.uniform1i(gl.getUniformLocation(prog, "u_sampler"), 0);
+
+    var mModelPiso = m4ComputeModelMatrix([0, -1, -5], 0, 0, 0, [1.0, 1.0, 1.0]);
+    gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelPiso));
+    gl.uniformMatrix4fv(uModel, false, mModelPiso);
+    bindGeometria(bufPiso);
+    gl.drawArrays(gl.TRIANGLES, 0, dadosPiso.length / 8);
 
     angle += 1; 
     requestAnimationFrame(draw);
 }
 
+// Funções de utilidade padrão
 function createShader(gl, type, src) {
     var s = gl.createShader(type);
     gl.shaderSource(s, src);
@@ -187,9 +179,11 @@ function createShader(gl, type, src) {
     if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
     return s;
 }
+
 function createProgram(gl, vs, fs) {
     var p = gl.createProgram();
     gl.attachShader(p, vs); gl.attachShader(p, fs);
     gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(p));
     return p;
 }
