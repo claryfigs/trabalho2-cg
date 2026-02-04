@@ -149,17 +149,21 @@ function draw() {
     var uTransf = gl.getUniformLocation(prog, "transf");
     var uModel = gl.getUniformLocation(prog, "u_model");
     var uUseTexture = gl.getUniformLocation(prog, "u_useTexture");
+    var uBaseColor = gl.getUniformLocation(prog, "u_baseColor");
     
     gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 10.0]);
     gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), camPos);
 
     // --- DESENHANDO O RATO (GIRANDO E SEM TEXTURA) ---
+
     gl.uniform1f(uUseTexture, 0.0); 
+    gl.uniform3fv(uBaseColor, [0.4, 0.2, 0.1]); // MOLHANDO O PINCEL NO MARROM
+
     var mModelRato = m4ComputeModelMatrix([0, 0, -5], 0, angle, 0, [0.08, 0.08, 0.08]);
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelRato));
     gl.uniformMatrix4fv(uModel, false, mModelRato);
     bindGeometria(bufRato);
-    gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8);
+    gl.drawArrays(gl.TRIANGLES, 0, dadosRato.length / 8); // PINTA O RATO
 
     // --- DESENHANDO O PISO (ESTÁTICO E COM TEXTURA) ---
     gl.uniform1f(uUseTexture, 1.0); 
@@ -167,28 +171,26 @@ function draw() {
     gl.bindTexture(gl.TEXTURE_2D, texTijolo);
     gl.uniform1i(gl.getUniformLocation(prog, "u_sampler"), 0);
 
-    var mModelPiso = m4ComputeModelMatrix([0, -1, -5], 0, 0, 0, [1.0, 1.0, 1.0]);
+    var mModelPiso = m4ComputeModelMatrix([0, -1, -5], 0, 0, 0, [2.0, 2.0, 2.0]);
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelPiso));
     gl.uniformMatrix4fv(uModel, false, mModelPiso);
     bindGeometria(bufPiso);
     gl.drawArrays(gl.TRIANGLES, 0, dadosPiso.length / 8);
 
     // --- DESENHANDO O QUEIJO (GIRANDO) ---
-    gl.uniform1f(uUseTexture, 0.0); // Sem textura, como o rato
-    // Posicionado em [3, 0, -5] para ficar ao lado do rato
+    gl.uniform1f(uUseTexture, 0.0); 
+    gl.uniform3fv(uBaseColor, [1.0, 0.8, 0.0]); // MOLHANDO O PINCEL NO AMARELO
+
     var mModelQueijo = m4ComputeModelMatrix([3, 0, -5], 0, angle, 0, [1, 1, 1]); 
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelQueijo));
     gl.uniformMatrix4fv(uModel, false, mModelQueijo);
     bindGeometria(bufQueijo);
-    gl.drawArrays(gl.TRIANGLES, 0, dadosQueijo.length / 8);
+    gl.drawArrays(gl.TRIANGLES, 0, dadosQueijo.length / 8); // PINTA O QUEIJO
 
-    // --- DESENHANDO O PISO ---
-    // (seu código original do piso aqui)
+        angle += 1; 
+        requestAnimationFrame(draw);
 
-    angle += 1; 
-    requestAnimationFrame(draw);
-
-}
+    }
 
 // Funções de utilidade padrão
 function createShader(gl, type, src) {
