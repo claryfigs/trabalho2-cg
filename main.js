@@ -28,12 +28,20 @@ window.addEventListener("mousedown", () => {
 });
 
 window.addEventListener("mousemove", (e) => {
+    // Só roda se o mouse estiver travado no canvas
     if (document.pointerLockElement === document.getElementById("glcanvas1")) {
-        var sensitivity = 0.15; // Sensibilidade do mouse
+        
+        // CORREÇÃO 1: Evita saltos bruscos
+        // Se o mouse moveu mais de 300 pixels num frame, é erro de leitura do navegador. Ignora.
+        if (Math.abs(e.movementX) > 300 || Math.abs(e.movementY) > 300) {
+            return; 
+        }
+
+        var sensitivity = 0.15;
         ratoYaw += e.movementX * sensitivity;
         ratoPitch -= e.movementY * sensitivity;
 
-        // Trava para não quebrar o pescoço (olhar muito pra cima ou baixo)
+        // Trava para não olhar para dentro do próprio corpo (Gimbal Lock)
         if (ratoPitch > 89) ratoPitch = 89;
         if (ratoPitch < -89) ratoPitch = -89;
     }
