@@ -6,6 +6,13 @@ var ratoPos = [0, 0, 5]; // Começa um pouco afastado em Z
 var ratoYaw = -90;       // Rotação do corpo (Esquerda/Direita)
 var ratoPitch = 0;       // Rotação da cabeça (Cima/Baixo)
 
+var teclas = {
+    w: false,
+    s: false,
+    a: false,
+    d: false
+};
+
 // Variáveis auxiliares para cálculo de direção
 var cameraFront = [0, 0, -1]; 
 
@@ -32,30 +39,54 @@ window.addEventListener("mousemove", (e) => {
     }
 });
 
+// --- NOVO: Teclado apenas liga/desliga as 'chaves' ---
 window.addEventListener("keydown", (e) => {
-    var speed = 1; // Velocidade de movimento do rato
+    if(e.key.toLowerCase() == "w") teclas.w = true;
+    if(e.key.toLowerCase() == "s") teclas.s = true;
+    if(e.key.toLowerCase() == "a") teclas.a = true;
+    if(e.key.toLowerCase() == "d") teclas.d = true;
+});
 
-    // --- MUDANÇA 2: Cálculo da direção de movimento ---
-    // Precisamos saber para onde é "Frente" baseado APENAS no Yaw (chão horizontal)
-    // Se usarmos o Pitch aqui, o rato voaria ao olhar para cima
+window.addEventListener("keyup", (e) => {
+    if(e.key.toLowerCase() == "w") teclas.w = false;
+    if(e.key.toLowerCase() == "s") teclas.s = false;
+    if(e.key.toLowerCase() == "a") teclas.a = false;
+    if(e.key.toLowerCase() == "d") teclas.d = false;
+});
+
+// --- NOVO: Função dedicada a calcular o movimento ---
+function processarMovimento() {
+    var speed = 0.2; // Velocidade
+
+    // 1. Calcula vetor FRENTE (baseado no Yaw)
     var radYaw = ratoYaw * Math.PI / 180;
-    
     var frenteX = Math.cos(radYaw);
     var frenteZ = Math.sin(radYaw);
 
-    // W = Anda na direção da frente
-    if(e.key == "w") { 
-        ratoPos[0] += frenteX * speed; 
-        ratoPos[2] += frenteZ * speed; 
+    // 2. Calcula vetor DIREITA (Frente rotacionado 90 graus)
+    // Direita é cos(yaw + 90º) e sin(yaw + 90º)
+    var radRight = (ratoYaw + 90) * Math.PI / 180;
+    var direitaX = Math.cos(radRight);
+    var direitaZ = Math.sin(radRight);
+
+    // 3. Aplica movimentos (Soma vetorial acontece aqui!)
+    if (teclas.w) {
+        ratoPos[0] += frenteX * speed;
+        ratoPos[2] += frenteZ * speed;
     }
-    // S = Anda na direção oposta
-    if(e.key == "s") { 
-        ratoPos[0] -= frenteX * speed; 
-        ratoPos[2] -= frenteZ * speed; 
+    if (teclas.s) {
+        ratoPos[0] -= frenteX * speed;
+        ratoPos[2] -= frenteZ * speed;
     }
-    
-    // Dica: Futuramente aqui entra a verificação de colisão!
-});
+    if (teclas.d) {
+        ratoPos[0] += direitaX * speed;
+        ratoPos[2] += direitaZ * speed;
+    }
+    if (teclas.a) {
+        ratoPos[0] -= direitaX * speed;
+        ratoPos[2] -= direitaZ * speed;
+    }
+}
 
 // --- INICIALIZAÇÃO ---
 async function init() {
@@ -149,6 +180,7 @@ function bindGeometria(buffer) {
 
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    processarMovimento(); 
 
     // --- MUDANÇA 3: Atualiza a Câmera baseada no Rato ---
     
