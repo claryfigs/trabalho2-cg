@@ -227,7 +227,7 @@ function draw() {
     gl.uniform1f(uUseTexture, 1.0); 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texTijolo);
-    gl.uniform1i(gl.getUniformLocation(prog, "u_sampler"), 0);
+    gl.uniform1i(gl.getUniformLocation(prog, "tex"), 0);
 
     // Piso grande para podermos andar bastante
     var mModelPiso = m4ComputeModelMatrix([0, -1, 0], 0, 0, 0, [2.5, 1.0, 2.5]);
