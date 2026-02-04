@@ -32,7 +32,7 @@ function draw() {
     Controles.atualizarPosicao(ratoPos);
     var cam = Controles.getCameraInfo(ratoPos);
     
-    var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
+    var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 60);
     var mView = m4LookAt(cam.eye, cam.target, [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
 
