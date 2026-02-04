@@ -10,8 +10,8 @@ var ratoPitch = 0;       // Rotação da cabeça (Cima/Baixo)
 var cameraFront = [0, 0, -1]; 
 
 // Dados dos Objetos e Buffers
-var dadosRato, dadosPiso, dadosQueijo; 
-var bufRato, bufPiso, bufQueijo;       
+var dadosRato, dadosPiso, dadosQueijo, dadosPlantas; 
+var bufRato, bufPiso, bufQueijo, bufPlantas;       
 var texTijolo;
 
 // --- ENTRADA DE DADOS ---
@@ -62,7 +62,8 @@ async function init() {
     try {
         dadosRato = await carregarOBJ("rato.obj", false);
         dadosPiso = await carregarOBJ("piso.obj", false);
-        dadosQueijo = await carregarOBJ("queijo.obj", true); 
+        dadosQueijo = await carregarOBJ("queijo.obj", true);
+        dadosPlantas = await carregarOBJ("plantas.obj", true); 
         
         if (dadosRato && dadosPiso) {
             initGL();
@@ -103,6 +104,10 @@ function configScene() {
     bufQueijo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufQueijo);
     gl.bufferData(gl.ARRAY_BUFFER, dadosQueijo, gl.STATIC_DRAW);
+
+    bufPlantas = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufPlantas);
+    gl.bufferData(gl.ARRAY_BUFFER, dadosPlantas, gl.STATIC_DRAW);
 }
 
 function carregarTextura(url) {
@@ -216,7 +221,18 @@ function draw() {
     gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelQueijo));
     gl.uniformMatrix4fv(uModel, false, mModelQueijo);
     bindGeometria(bufQueijo);
-    gl.drawArrays(gl.TRIANGLES, 0, dadosQueijo.length / 8); 
+    gl.drawArrays(gl.TRIANGLES, 0, dadosQueijo.length / 8);
+
+        // --- DESENHANDO plantas ---
+    gl.uniform1f(uUseTexture, 0.0); 
+    gl.uniform3fv(uBaseColor, [0.0, 1.0, 0.0]);
+
+    var mModelPlantas = m4ComputeModelMatrix([10, 0, -10], 0, 0, 0, [10, 10, 10]); 
+    gl.uniformMatrix4fv(uTransf, false, m4Multiply(mVP, mModelPlantas));
+    gl.uniformMatrix4fv(uModel, false, mModelPlantas);
+    bindGeometria(bufPlantas);
+    gl.drawArrays(gl.TRIANGLES, 0, dadosPlantas.length / 8); 
+
 
     requestAnimationFrame(draw);
 }
