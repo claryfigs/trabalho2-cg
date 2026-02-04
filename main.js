@@ -10,7 +10,7 @@ var angle = 0;
 // Dados dos Objetos e Buffers
 var dadosRato, dadosPiso, dadosQueijo; // Adicionado dadosQueijo
 var bufRato, bufPiso, bufQueijo;       // Adicionado bufQueijo
-var texGato;
+var texTijolo;
 
 // --- ENTRADA DE DADOS ---
 window.addEventListener("mousedown", () => {
@@ -51,8 +51,8 @@ async function init() {
         if (dadosRato && dadosPiso) {
             initGL();
             configScene();
-            // Carrega a textura do gato
-            texGato = carregarTextura("gato.jpg"); 
+            // Carrega a textura do Tijolo
+            texTijolo = carregarTextura("Tijolo.jpg"); 
             draw();
         }
     } catch (e) { 
@@ -164,7 +164,7 @@ function draw() {
     // --- DESENHANDO O PISO (ESTÁTICO E COM TEXTURA) ---
     gl.uniform1f(uUseTexture, 1.0); 
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texGato);
+    gl.bindTexture(gl.TEXTURE_2D, texTijolo);
     gl.uniform1i(gl.getUniformLocation(prog, "u_sampler"), 0);
 
     var mModelPiso = m4ComputeModelMatrix([0, -1, -5], 0, 0, 0, [1.0, 1.0, 1.0]);
