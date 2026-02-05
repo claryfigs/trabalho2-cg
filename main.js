@@ -29,6 +29,18 @@ async function initApp() {
     // NÃO chama draw() aqui. O botão Jogar fará isso.
 }
 
+function redimensionarCanvas(gl) {
+    var displayWidth  = gl.canvas.clientWidth;
+    var displayHeight = gl.canvas.clientHeight;
+
+    // Se o tamanho do buffer interno for diferente do tamanho CSS
+    if (gl.canvas.width !== displayWidth || gl.canvas.height !== displayHeight) {
+        gl.canvas.width  = displayWidth;
+        gl.canvas.height = displayHeight;
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height); // Atualiza a viewport
+    }
+}
+
 // Chamada pelo Menu.js quando clica em JOGAR
 function resetarJogo() {
     ratoPos = [0, 0, 5];
@@ -57,6 +69,8 @@ function resetarJogo() {
 function draw() {
     // Se o usuário saiu para o menu ou ranking, para de desenhar
     if (Menu.estado !== "JOGANDO") return;
+
+    redimensionarCanvas(gl);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
