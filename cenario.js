@@ -56,10 +56,10 @@ var Cenario = {
 
         // --- QUEIJOS ---
         queijo1: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [5, 0, -10], scale: [1, 1, 1], rot: [0, 0, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo2: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [-10, 0, 5], scale: [1, 1, 1], rot: [0, 45, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo3: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [0, 0, 15], scale: [1, 1, 1], rot: [0, 90, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo4: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [-15, 0, -15], scale: [1, 1, 1], rot: [0, 120, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo5: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [12, 0, 12], scale: [1, 1, 1], rot: [0, 180, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo2: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [40, 0, 50], scale: [1, 1, 1], rot: [0, 45, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo3: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [-50, 0, 20], scale: [1, 1, 1], rot: [0, 90, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo4: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [-10, 0, -30], scale: [1, 1, 1], rot: [0, 120, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo5: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos:  [60, 0, -40], scale: [1, 1, 1], rot: [0, 180, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
         
         plantas: { 
             url: "plantas.obj", buffer: null, count: 0, ativo: true,
@@ -155,9 +155,9 @@ var Cenario = {
 
         rato1: {
             url: "rato.obj", buffer: null, count: 0, ativo: true,
-            pos: [-30, -1.5, 20],      
+            pos: [40, -1.5, 60],      
             scale: [0.08, 0.08, 0.08],    
-            rot: [0, 0, 0],   
+            rot: [0, 70, 0],   
             cor: [0.12, 0.08, 0.03],
             tex: "pelos.jpg",
             usaTextura: true,
@@ -166,13 +166,26 @@ var Cenario = {
 
         rato2: {
             url: "rato.obj", buffer: null, count: 0, ativo: true,
-            pos: [-40, -1.5, 20],      
+            pos: [50, -1.5, 60],      
             scale: [0.08, 0.08, 0.08],    
-            rot: [0, 0, 0],   
+            rot: [0, 140, 0],   
             cor: [0.12, 0.08, 0.03],
+            tex: "pelo2.jpg",
+            usaTextura: true,
+            boxLocal: null
+        },
+
+        buraco: {
+            url: "buraco.obj", buffer: null, count: 0, ativo: true,
+            pos: [74, -1, 50],      
+            scale: [3, 3, 3],    
+            rot: [0, 90, 0],   
+            cor: [0, 0, 0],
             usaTextura: false,
             boxLocal: null
         },
+
+
     },
 
     texturas: {}, 
@@ -186,6 +199,7 @@ var Cenario = {
             this.texturas["estante.jpg"] = this.carregarTextura(gl, "estante.jpg");
             this.texturas["jornal.jpg"] = this.carregarTextura(gl, "jornal.jpg");
             this.texturas["pelos.jpg"] = this.carregarTextura(gl, "pelos.jpg");
+            this.texturas["pelo2.jpg"] = this.carregarTextura(gl, "pelo2.jpg");
 
             for (let chave in this.objetos) {
                 let obj = this.objetos[chave];

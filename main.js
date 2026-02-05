@@ -1,5 +1,5 @@
 var gl, prog;
-var ratoPos = [0, 0, 5]; 
+var ratoPos = [0, 0, 0]; 
 var queijosColetados = 0;
 var totalQueijos = 5;
 var tempoInicial = 0;
@@ -58,8 +58,8 @@ function alternarLuz() {
 }
 
 function resetarJogo() {
-    ratoPos = [0, 0, 5];
-    Controles.yaw = -90;
+    ratoPos = [60, 0, 70];
+    Controles.yaw = -80;
     Controles.pitch = 0;
     queijosColetados = 0;
     tempoInicial = Date.now();
