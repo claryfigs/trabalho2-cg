@@ -10,7 +10,16 @@ var usarLanterna = true;
 
 async function initApp() {
     AudioGerenciador.init();
-    AudioGerenciador.tocarMenu(); 
+    AudioGerenciador.trilhaMenu.play().catch(() => {
+        
+        document.body.addEventListener('click', () => {
+            if (Menu.estado === "MENU") AudioGerenciador.tocarMenu();
+        }, { once: true });
+    });
+
+    Menu.init();
+    Controles.init("glcanvas1");
+
     // Inicializa Menu
     Menu.init();
 

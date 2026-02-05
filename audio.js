@@ -1,7 +1,7 @@
 var AudioGerenciador = {
 
-    trilhaMenu: new Audio("musica_menu.mp3"),
-    trilhaJogo: new Audio("musica_jogo.mp3"),
+    trilhaMenu: new Audio("músicas/musica_menu.mp3"),
+    trilhaJogo: new Audio("músicas/musica_jogo.mp3"),
     fxVitoria:  new Audio("músicas/som_vitoria.mp3"),
 
     init() {
