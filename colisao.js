@@ -1,60 +1,63 @@
 var Colisao = {
-    // Definimos o tamanho do corpo do jogador (uma caixa de 0.6 x 1.8 x 0.6)
     tamanhoRato: { w: 0.6, h: 1.8, d: 0.6 },
-
-    // Limites do mundo
-    limitesMundo: { xMin: -1000, xMax: 2000, zMin: -2000, zMax: 2000 },
 
     verificar(novaPos, listaObjetos) {
         
-        // 1. Paredes do Mundo (Simples)
-        if (novaPos[0] < this.limitesMundo.xMin || novaPos[0] > this.limitesMundo.xMax ||
-            novaPos[2] < this.limitesMundo.zMin || novaPos[2] > this.limitesMundo.zMax) {
-            return { colidiu: true, tipo: 'parede' };
-        }
-
-        // 2. Cria a AABB do Rato na posição futura
-        // O Rato está centrado no X e Z, mas o pé está no Y (Y vai de 0 a 1.8)
+        // 1. Caixa do Rato
         let boxRato = {
-            min: [
-                novaPos[0] - this.tamanhoRato.w / 2, 
-                novaPos[1], 
-                novaPos[2] - this.tamanhoRato.d / 2
-            ],
-            max: [
-                novaPos[0] + this.tamanhoRato.w / 2, 
-                novaPos[1] + this.tamanhoRato.h, 
-                novaPos[2] + this.tamanhoRato.d / 2
-            ]
+            min: [ novaPos[0] - 0.3, novaPos[1], novaPos[2] - 0.3 ],
+            max: [ novaPos[0] + 0.3, novaPos[1] + 1.8, novaPos[2] + 0.3 ]
         };
 
-        // 3. Testa contra todos os objetos
+        // 2. Testa Objetos
         for (let nome in listaObjetos) {
             let obj = listaObjetos[nome];
             
-            // Pula objetos inativos, sem box calculada, ou o próprio piso
             if (nome === 'piso' || !obj.ativo || !obj.boxLocal) continue;
 
-            // --- CÁLCULO DA AABB DO OBJETO NO MUNDO ---
-            // Formula: WorldMin = Pos + (LocalMin * Scale)
-            // Formula: WorldMax = Pos + (LocalMax * Scale)
+            // --- TAMANHO ORIGINAL (COM ESCALA) ---
+            let minX = obj.boxLocal.min[0] * obj.scale[0];
+            let maxX = obj.boxLocal.max[0] * obj.scale[0];
+            let minZ = obj.boxLocal.min[2] * obj.scale[2];
+            let maxZ = obj.boxLocal.max[2] * obj.scale[2];
             
-            // Nota: Se a escala for negativa, precisaria trocar min/max, 
-            // mas assumimos escala positiva aqui.
-            let worldMin = [
-                obj.pos[0] + (obj.boxLocal.min[0] * obj.scale[0]),
-                obj.pos[1] + (obj.boxLocal.min[1] * obj.scale[1]),
-                obj.pos[2] + (obj.boxLocal.min[2] * obj.scale[2])
-            ];
+            // Altura (Y) geralmente não gira
+            let minY = obj.boxLocal.min[1] * obj.scale[1];
+            let maxY = obj.boxLocal.max[1] * obj.scale[1];
 
-            let worldMax = [
-                obj.pos[0] + (obj.boxLocal.max[0] * obj.scale[0]),
-                obj.pos[1] + (obj.boxLocal.max[1] * obj.scale[1]),
-                obj.pos[2] + (obj.boxLocal.max[2] * obj.scale[2])
-            ];
+            // --- A MÁGICA DA ROTAÇÃO ---
+            // Verifica a rotação no eixo Y (rot[1])
+            let rotY = Math.abs(obj.rot[1] || 0) % 360;
+            
+            // Consideramos "girado" se estiver perto de 90 ou 270 graus
+            let estaGirado = (rotY > 80 && rotY < 100) || (rotY > 260 && rotY < 280);
 
-            // --- TESTE DE INTERSEÇÃO AABB ---
-            // Para colidir, TEM QUE colidir em X E colidir em Y E colidir em Z
+            let finalMinX, finalMaxX, finalMinZ, finalMaxZ;
+
+            if (estaGirado) {
+                // SE GIROU: O X vira Z, e o Z vira X
+                // (Trocamos a largura pela profundidade)
+                finalMinX = minZ; 
+                finalMaxX = maxZ;
+                finalMinZ = minX; 
+                finalMaxZ = maxX;
+            } else {
+                // SE NÃO GIROU: Mantém normal
+                finalMinX = minX; 
+                finalMaxX = maxX;
+                finalMinZ = minZ; 
+                finalMaxZ = maxZ;
+            }
+
+            // --- CAIXA NO MUNDO ---
+            let worldMin = [ obj.pos[0] + finalMinX, obj.pos[1] + minY, obj.pos[2] + finalMinZ ];
+            let worldMax = [ obj.pos[0] + finalMaxX, obj.pos[1] + maxY, obj.pos[2] + finalMaxZ ];
+
+            // Correção: Se ao girar o Min ficou maior que o Max, desinverte
+            if (worldMin[0] > worldMax[0]) [worldMin[0], worldMax[0]] = [worldMax[0], worldMin[0]];
+            if (worldMin[2] > worldMax[2]) [worldMin[2], worldMax[2]] = [worldMax[2], worldMin[2]];
+
+            // --- TESTE AABB ---
             let colideX = (boxRato.min[0] <= worldMax[0] && boxRato.max[0] >= worldMin[0]);
             let colideY = (boxRato.min[1] <= worldMax[1] && boxRato.max[1] >= worldMin[1]);
             let colideZ = (boxRato.min[2] <= worldMax[2] && boxRato.max[2] >= worldMin[2]);

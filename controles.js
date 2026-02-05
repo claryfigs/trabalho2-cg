@@ -3,7 +3,7 @@ var Controles = {
     yaw: -90,
     pitch: 0,
     teclas: { w: false, s: false, a: false, d: false },
-    velocidade: 0.2,
+    velocidade: 0.5,
     sensibilidade: 0.15,
 
     // Inicializa os ouvintes de eventos
