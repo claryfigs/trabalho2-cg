@@ -5,13 +5,12 @@ var totalQueijos = 5;
 var tempoInicial = 0;
 var animationId = null; 
 
-
 var usarLanterna = true;
 
 async function initApp() {
     AudioGerenciador.init();
+    
     AudioGerenciador.trilhaMenu.play().catch(() => {
-        
         document.body.addEventListener('click', () => {
             if (Menu.estado === "MENU") AudioGerenciador.tocarMenu();
         }, { once: true });
@@ -20,10 +19,6 @@ async function initApp() {
     Menu.init();
     Controles.init("glcanvas1");
 
-    // Inicializa Menu
-    Menu.init();
-
-    // Carrega WebGL
     var canvas = document.getElementById("glcanvas1");
     gl = canvas.getContext("webgl");
     prog = createProgram(gl, 
@@ -36,8 +31,9 @@ async function initApp() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
-    Controles.init("glcanvas1");
     await Cenario.init(gl);
+    
+    draw();
 }
 
 function redimensionarCanvas(gl) {
@@ -50,7 +46,7 @@ function redimensionarCanvas(gl) {
     }
 }
 
-function alternarLuz() {
+window.alternarLuz = function() {
     usarLanterna = !usarLanterna;
     
     var uiTexto = document.getElementById("modo-luz");
@@ -82,6 +78,9 @@ function resetarJogo() {
         }
     }
     
+    if(Cenario.objetos.ratoMenu) Cenario.objetos.ratoMenu.ativo = false;
+    if(Cenario.objetos.queijoMenu) Cenario.objetos.queijoMenu.ativo = false;
+
     document.getElementById("contador").innerText = "0";
     document.getElementById("timer").innerText = "0.0";
     document.getElementById("ui-vitoria").style.display = "none";
@@ -91,7 +90,15 @@ function resetarJogo() {
 }
 
 function draw() {
-    if (Menu.estado !== "JOGANDO") return;
+    if (Menu.estado !== "JOGANDO") {
+        if (Menu.renderizarCena) {
+            redimensionarCanvas(gl);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            Menu.renderizarCena(gl, prog);
+            requestAnimationFrame(draw);
+        }
+        return;
+    }
 
     redimensionarCanvas(gl);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -129,10 +136,8 @@ function draw() {
 
     var posLuz;
     if (usarLanterna) {
- 
         posLuz = [ratoPos[0], ratoPos[1] + 6.0, ratoPos[2]];
     } else {
- 
         posLuz = [0.0, 43.0, 0.0];
     }
     

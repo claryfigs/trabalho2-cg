@@ -1,21 +1,17 @@
 var Controles = {
-    // Estado interno
     yaw: -90,
     pitch: 0,
     teclas: { w: false, s: false, a: false, d: false },
     velocidade: 0.4,
     sensibilidade: 0.15,
 
-    // Inicializa os ouvintes de eventos
     init(canvasId) {
         var canvas = document.getElementById(canvasId);
         
-        // Mouse Click (Travar ponteiro)
         canvas.addEventListener("mousedown", () => { 
             canvas.requestPointerLock(); 
         });
 
-        // Mouse Move
         document.addEventListener("mousemove", (e) => {
             if (document.pointerLockElement === canvas) {
                 if (Math.abs(e.movementX) > 300 || Math.abs(e.movementY) > 300) return; 
@@ -28,30 +24,26 @@ var Controles = {
             }
         });
 
-        // Teclado (Pressionar)
         window.addEventListener("keydown", (e) => { 
             var k = e.key.toLowerCase();
-
-            // --- NOVO: Tecla F para Alternar Luz ---
-            if (k === 'f') {
-                // Chama a função global definida no main.js
-                if (typeof alternarLuz === "function") {
-                    alternarLuz();
-                }
-            }
-            // ---------------------------------------
-
             if (this.teclas[k] !== undefined) this.teclas[k] = true; 
         });
         
-        // Teclado (Soltar)
         window.addEventListener("keyup", (e) => { 
             var k = e.key.toLowerCase();
+            
+            if (k === 'f') {
+                if (typeof window.alternarLuz === "function") {
+                    window.alternarLuz();
+                } else if (typeof alternarLuz === "function") {
+                    alternarLuz();
+                }
+            }
+
             if (this.teclas[k] !== undefined) this.teclas[k] = false; 
         });
     },
 
-    // Calcula onde o rato estaria no próximo frame
     simularProximaPosicao(posAtual) {
         var novaPos = [posAtual[0], posAtual[1], posAtual[2]];
         
@@ -70,7 +62,6 @@ var Controles = {
         return novaPos;
     },
 
-    // Retorna dados para a câmera (LookAt)
     getCameraInfo(posRato) {
         var olhosPos = [posRato[0], posRato[1] + 0.9, posRato[2]];
 
