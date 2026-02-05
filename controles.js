@@ -3,7 +3,7 @@ var Controles = {
     yaw: -90,
     pitch: 0,
     teclas: { w: false, s: false, a: false, d: false },
-    velocidade: 0.5,
+    velocidade: 1,
     sensibilidade: 0.15,
 
     // Inicializa os ouvintes de eventos
@@ -28,21 +28,31 @@ var Controles = {
             }
         });
 
-        // Teclado
+        // Teclado (Pressionar)
         window.addEventListener("keydown", (e) => { 
             var k = e.key.toLowerCase();
+
+            // --- NOVO: Tecla F para Alternar Luz ---
+            if (k === 'f') {
+                // Chama a função global definida no main.js
+                if (typeof alternarLuz === "function") {
+                    alternarLuz();
+                }
+            }
+            // ---------------------------------------
+
             if (this.teclas[k] !== undefined) this.teclas[k] = true; 
         });
         
+        // Teclado (Soltar)
         window.addEventListener("keyup", (e) => { 
             var k = e.key.toLowerCase();
             if (this.teclas[k] !== undefined) this.teclas[k] = false; 
         });
     },
 
-    // Ela calcula onde o rato estaria no próximo frame, mas NÃO move ele ainda.
+    // Calcula onde o rato estaria no próximo frame
     simularProximaPosicao(posAtual) {
-        // Cria uma cópia da posição (não altera a original)
         var novaPos = [posAtual[0], posAtual[1], posAtual[2]];
         
         var radYaw = this.yaw * Math.PI / 180;
