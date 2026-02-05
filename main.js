@@ -5,10 +5,12 @@ var totalQueijos = 5;
 var tempoInicial = 0;
 var animationId = null; 
 
-// --- CONTROLE DE ILUMINAÇÃO (NOVO) ---
-var usarLanterna = true; // true = Lanterna, false = Luz de Teto
+
+var usarLanterna = true;
 
 async function initApp() {
+    AudioGerenciador.init();
+    AudioGerenciador.tocarMenu(); 
     // Inicializa Menu
     Menu.init();
 
@@ -39,12 +41,9 @@ function redimensionarCanvas(gl) {
     }
 }
 
-// --- FUNÇÃO PARA TROCAR O TIPO DE LUZ ---
-// Chamada pelo controles.js quando aperta 'F'
 function alternarLuz() {
     usarLanterna = !usarLanterna;
     
-    // Tenta atualizar a UI se ela existir
     var uiTexto = document.getElementById("modo-luz");
     if (uiTexto) {
         if (usarLanterna) {
@@ -64,12 +63,10 @@ function resetarJogo() {
     queijosColetados = 0;
     tempoInicial = Date.now();
     
-    // Reseta luz para lanterna
     usarLanterna = true;
     var uiTexto = document.getElementById("modo-luz");
     if(uiTexto) { uiTexto.innerText = "🔦 LANTERNA (F)"; uiTexto.style.color = "#FFD700"; }
 
-    // Reativa os queijos
     for (let chave in Cenario.objetos) {
         if (chave.startsWith('queijo')) {
             Cenario.objetos[chave].ativo = true;
@@ -90,11 +87,9 @@ function draw() {
     redimensionarCanvas(gl);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // --- TEMPO ---
     var tempoAtual = (Date.now() - tempoInicial) / 1000;
     document.getElementById("timer").innerText = tempoAtual.toFixed(1);
 
-    // --- MOVIMENTO & COLISÃO ---
     var proximaPos = Controles.simularProximaPosicao(ratoPos);
     var resultado = Colisao.verificar(proximaPos, Cenario.objetos);
 
@@ -117,34 +112,30 @@ function draw() {
         }
     }
 
-    // --- CÂMERA ---
     var cam = Controles.getCameraInfo(ratoPos);
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(cam.eye, cam.target, [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
 
-    // =========================================================
-    // --- LÓGICA DA LUZ MÓVEL ---
-    // =========================================================
+
     var posLuz;
     if (usarLanterna) {
-        // Lanterna: Luz na posição do jogador (+1 de altura)
+ 
         posLuz = [ratoPos[0], ratoPos[1] + 6.0, ratoPos[2]];
     } else {
-        // Teto: Luz fixa no centro do teto
+ 
         posLuz = [0.0, 43.0, 0.0];
     }
     
     gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), posLuz);
     gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), cam.eye);
-    // =========================================================
+
 
     Cenario.desenhar(gl, prog, mVP);
 
     animationId = requestAnimationFrame(draw);
 }
 
-// Helpers
 function createShader(gl, type, src) { 
     var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s;
 }

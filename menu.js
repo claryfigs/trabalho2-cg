@@ -21,7 +21,7 @@ var Menu = {
     // Começa o jogo (antiga função iniciarJogo)
     iniciarJogoReal() {
         this.estado = "JOGANDO";
-        
+        AudioGerenciador.tocarJogo();
         // Esconde Objetivo, Ranking e Menu
         document.getElementById("tela-objetivo").style.display = "none"; // Esconde a missão
         document.getElementById("tela-ranking").style.display = "none";
@@ -36,6 +36,7 @@ var Menu = {
 
     finalizarJogo(tempoFinal) {
         this.estado = "RANKING";
+        AudioGerenciador.tocarVitoria();
         document.getElementById("display-tempo-atual").innerText = tempoFinal;
         this.salvarRecorde(parseFloat(tempoFinal));
 
@@ -54,6 +55,7 @@ var Menu = {
     },
 
     voltarAoMenu() {
+        AudioGerenciador.tocarMenu();
         document.getElementById("tela-ranking").style.display = "none";
         document.getElementById("tela-menu").style.display = "flex";
     },
