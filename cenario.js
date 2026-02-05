@@ -1,11 +1,10 @@
 var Cenario = {
     objetos: {
-        // --- CHÃO ---
         piso: { 
             url: "objetos/piso.obj", buffer: null, count: 0, ativo: true,
             pos: [0, -1, 0], scale: [3, 1.0, 3], rot: [0, 0, 0],
             cor: [1, 1, 1], 
-            tex: "texturas/Tijolo.jpg", // Define qual textura usar
+            tex: "texturas/Tijolo.jpg", 
             usaTextura: true,
             boxLocal: null
         },
@@ -24,37 +23,36 @@ var Cenario = {
         parede1: { 
             url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [0, -1, -75], scale: [3, 5, 1], rot: [0, 0, 0],
-            cor: [1, 1, 1],       // Cor branca para não alterar a textura
-            tex: "texturas/Parede.jpg",    // <--- Nome do arquivo da textura
-            usaTextura: true,     // <--- Ativa a textura
+            cor: [1, 1, 1],   
+            tex: "texturas/Parede.jpg",  
+            usaTextura: true,   
             boxLocal: null
         },
         parede2: { 
             url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [0, -1, 75], scale: [3, 5, 1], rot: [0, 0, 0],
             cor: [1, 1, 1], 
-            tex: "texturas/Parede.jpg",    // <--- Textura
-            usaTextura: true,     // <--- Ativa
+            tex: "texturas/Parede.jpg", 
+            usaTextura: true,   
             boxLocal: null
         },
         parede3: { 
             url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [75, -1, 0], scale: [3, 5, 1], rot: [0, 90, 0],
             cor: [1, 1, 1], 
-            tex: "texturas/Parede.jpg",    // <--- Textura
-            usaTextura: true,     // <--- Ativa
+            tex: "texturas/Parede.jpg",   
+            usaTextura: true,   
             boxLocal: null
         },
         parede4: { 
             url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [-75, -1, 0], scale: [3, 5, 1], rot: [0, 90, 0],
             cor: [1, 1, 1], 
-            tex: "texturas/Parede.jpg",    // <--- Textura
-            usaTextura: true,     // <--- Ativa
+            tex: "texturas/Parede.jpg",  
+            usaTextura: true,    
             boxLocal: null
         },
 
-        // --- QUEIJOS ---
         queijo1: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos: [5, 0, -10], scale: [1, 1, 1], rot: [0, 0, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
         queijo2: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos: [40, 0, 50], scale: [1, 1, 1], rot: [0, 45, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
         queijo3: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos: [-50, 0, 20], scale: [1, 1, 1], rot: [0, 90, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
@@ -215,7 +213,6 @@ var Cenario = {
                     gl.bufferData(gl.ARRAY_BUFFER, dados, gl.STATIC_DRAW);
                     obj.count = dados.length / 8;
                     
-                    // Calcula caixa de colisão
                     obj.boxLocal = this.calcularAABB(dados);
                 }
             }
@@ -236,19 +233,14 @@ var Cenario = {
         for (let chave in this.objetos) {
             let obj = this.objetos[chave];
             
-            // Se o objeto não carregou ou foi desativado (queijo comido), pula
             if (!obj.buffer || !obj.ativo) continue;
 
-            // Animação dos queijos
             if (chave.startsWith('queijo')) { obj.rot[1] += 1.0; }
 
-            // Configuração de Material
             if (obj.usaTextura) {
                 gl.uniform1f(uUseTexture, 1.0);
                 gl.activeTexture(gl.TEXTURE0);
                 
-                // Pega a textura correta do cache. Se não achar, usa Tijolo como padrão.
-                // Isso permite que 'piso' use Tijolo.jpg e 'teto' use Teto.jpg
                 let nomeTextura = obj.tex || "Tijolo.jpg";
                 let texturaGPU = this.texturas[nomeTextura];
 

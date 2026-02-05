@@ -5,7 +5,6 @@ var AudioGerenciador = {
     fxVitoria:  new Audio("músicas/som_vitoria.mp3"),
 
     init() {
-        // Configurações iniciais
         this.trilhaMenu.loop = true;  
         this.trilhaJogo.loop = true;  
         this.fxVitoria.loop = false;  

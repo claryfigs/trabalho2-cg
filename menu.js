@@ -2,35 +2,28 @@ var Menu = {
     estado: "MENU", 
 
     init() {
-        // --- MUDANÇA 1: Botão Jogar agora leva para o Objetivo ---
         document.getElementById("btn-jogar").addEventListener("click", () => this.mostrarObjetivo());
         
-        // --- MUDANÇA 2: Novo botão da tela de objetivo inicia o jogo de verdade ---
         document.getElementById("btn-comecar-missao").addEventListener("click", () => this.iniciarJogoReal());
 
         document.getElementById("btn-sair").addEventListener("click", () => this.sairDoJogo());
         document.getElementById("btn-voltar").addEventListener("click", () => this.voltarAoMenu());
     },
 
-    // Abre a tela de missão
     mostrarObjetivo() {
         document.getElementById("tela-menu").style.display = "none";
-        document.getElementById("tela-objetivo").style.display = "flex"; // Mostra a missão
+        document.getElementById("tela-objetivo").style.display = "flex";
     },
 
-    // Começa o jogo (antiga função iniciarJogo)
     iniciarJogoReal() {
         this.estado = "JOGANDO";
         AudioGerenciador.tocarJogo();
-        // Esconde Objetivo, Ranking e Menu
-        document.getElementById("tela-objetivo").style.display = "none"; // Esconde a missão
+        document.getElementById("tela-objetivo").style.display = "none";
         document.getElementById("tela-ranking").style.display = "none";
         
-        // Mostra UI do Jogo e Canvas
         document.getElementById("ui-jogo").style.display = "block";
         document.getElementById("glcanvas1").style.display = "block";
 
-        // Chama a função global do main.js para resetar tudo
         resetarJogo(); 
     },
 
@@ -60,7 +53,6 @@ var Menu = {
         document.getElementById("tela-menu").style.display = "flex";
     },
 
-    // ... (O resto do código: salvarRecorde, renderizarRanking continua igual) ...
     salvarRecorde(tempo) {
         let ranking = JSON.parse(localStorage.getItem('ratoRanking')) || [];
         let nome = prompt("Novo Recorde! Digite seu nome:", "Jogador");

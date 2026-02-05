@@ -2,34 +2,31 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Rato 3D - Full Screen</title>
+    <title>Rato 3D</title>
 
     <style>
-        /* 1. Remove as margens brancas padrão do navegador */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Impede barras de rolagem */
-            background-color: #000; /* Fundo preto para evitar clarões */
+            overflow: hidden; 
+            background-color: #000; 
         }
 
-        /* 2. Força o Canvas a ocupar a tela inteira */
         #glcanvas1 {
-            position: absolute; /* Fixa ele no canto */
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw;  /* 100% da largura da janela */
-            height: 100vh; /* 100% da altura da janela */
-            display: none; /* Começa escondido (o JS vai mudar para block) */
-            z-index: 1;    /* Fica atrás da interface de texto */
+            width: 100vw; 
+            height: 100vh;
+            display: none; 
+            z-index: 1;   
         }
 
-        /* Ajuste para garantir que a UI fique na frente do canvas */
         #ui-jogo, #ui-vitoria {
             z-index: 5;
-            position: relative; /* Necessário para o z-index funcionar */
+            position: relative;
         }
     </style>
 

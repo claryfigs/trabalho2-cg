@@ -57,20 +57,15 @@ async function carregarOBJ(url, inverter = false) {
 function processarVertice(specString, positions, texCoords, normals, verticesFinal) {
     const specs = specString.split('/');
     
-    // Vértice (Posição) - Obrigatório
     const vIdx = parseInt(specs[0]) - 1;
     verticesFinal.push(...positions[vIdx]);
 
-    // Normal
     if (specs.length > 2 && specs[2] !== "" && normals.length > 0) {
         const vnIdx = parseInt(specs[2]) - 1;
         verticesFinal.push(...normals[vnIdx]);
     } else {
-        // Placeholder para normal (será calculado depois se necessário)
         verticesFinal.push(0, 0, 0); 
     }
-
-    // Coordenada de Textura (UV)
     if (specs.length > 1 && specs[1] !== "" && texCoords.length > 0) {
         const vtIdx = parseInt(specs[1]) - 1;
         verticesFinal.push(texCoords[vtIdx][0], texCoords[vtIdx][1]);
@@ -80,9 +75,8 @@ function processarVertice(specString, positions, texCoords, normals, verticesFin
 }
 
 function calcularNormaisAutomaticas(buffer, inverter) {
-    const stride = 8; // pos(3) + norm(3) + tex(2)
+    const stride = 8;
     for (let i = 0; i < buffer.length; i += stride * 3) {
-        // Posições dos 3 vértices do triângulo
         const ax = buffer[i], ay = buffer[i+1], az = buffer[i+2];
         const bx = buffer[i+stride], by = buffer[i+stride+1], bz = buffer[i+stride+2];
         const cx = buffer[i+stride*2], cy = buffer[i+stride*2+1], cz = buffer[i+stride*2+2];
@@ -106,7 +100,6 @@ function calcularNormaisAutomaticas(buffer, inverter) {
             nx /= len; ny /= len; nz /= len;
         }
 
-        // Atribui a mesma normal para os 3 vértices do triângulo (Flat Shading)
         for (let j = 0; j < 3; j++) {
             buffer[i + (j * stride) + 3] = nx;
             buffer[i + (j * stride) + 4] = ny;
