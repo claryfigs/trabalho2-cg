@@ -2,67 +2,67 @@ var Cenario = {
     objetos: {
         // --- CHÃO ---
         piso: { 
-            url: "piso.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/piso.obj", buffer: null, count: 0, ativo: true,
             pos: [0, -1, 0], scale: [3, 1.0, 3], rot: [0, 0, 0],
             cor: [1, 1, 1], 
-            tex: "Tijolo.jpg", // Define qual textura usar
+            tex: "texturas/Tijolo.jpg", // Define qual textura usar
             usaTextura: true,
             boxLocal: null
         },
 
         teto: { 
-            url: "teto.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/teto.obj", buffer: null, count: 0, ativo: true,
             pos: [0, 74, 0],       
             scale: [3, 1.0, 3], 
             rot: [180, 0, 0],      
             cor: [1, 1, 1], 
-            tex: "Teto.jpg",      
+            tex: "texturas/Teto.jpg",      
             usaTextura: true, 
             boxLocal: null
         },
         
         parede1: { 
-            url: "parede.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [0, -1, -75], scale: [3, 5, 1], rot: [0, 0, 0],
             cor: [1, 1, 1],       // Cor branca para não alterar a textura
-            tex: "Parede.jpg",    // <--- Nome do arquivo da textura
+            tex: "texturas/Parede.jpg",    // <--- Nome do arquivo da textura
             usaTextura: true,     // <--- Ativa a textura
             boxLocal: null
         },
         parede2: { 
-            url: "parede.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [0, -1, 75], scale: [3, 5, 1], rot: [0, 0, 0],
             cor: [1, 1, 1], 
-            tex: "Parede.jpg",    // <--- Textura
+            tex: "texturas/Parede.jpg",    // <--- Textura
             usaTextura: true,     // <--- Ativa
             boxLocal: null
         },
         parede3: { 
-            url: "parede.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [75, -1, 0], scale: [3, 5, 1], rot: [0, 90, 0],
             cor: [1, 1, 1], 
-            tex: "Parede.jpg",    // <--- Textura
+            tex: "texturas/Parede.jpg",    // <--- Textura
             usaTextura: true,     // <--- Ativa
             boxLocal: null
         },
         parede4: { 
-            url: "parede.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/parede.obj", buffer: null, count: 0, ativo: true,
             pos: [-75, -1, 0], scale: [3, 5, 1], rot: [0, 90, 0],
             cor: [1, 1, 1], 
-            tex: "Parede.jpg",    // <--- Textura
+            tex: "texturas/Parede.jpg",    // <--- Textura
             usaTextura: true,     // <--- Ativa
             boxLocal: null
         },
 
         // --- QUEIJOS ---
-        queijo1: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [5, 0, -10], scale: [1, 1, 1], rot: [0, 0, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo2: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [40, 0, 50], scale: [1, 1, 1], rot: [0, 45, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo3: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [-50, 0, 20], scale: [1, 1, 1], rot: [0, 90, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo4: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos: [-10, 0, -30], scale: [1, 1, 1], rot: [0, 120, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
-        queijo5: { url: "queijo.obj", buffer: null, count: 0, ativo: true, pos:  [60, 0, -40], scale: [1, 1, 1], rot: [0, 180, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo1: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos: [5, 0, -10], scale: [1, 1, 1], rot: [0, 0, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo2: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos: [40, 0, 50], scale: [1, 1, 1], rot: [0, 45, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo3: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos: [-50, 0, 20], scale: [1, 1, 1], rot: [0, 90, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo4: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos: [-10, 0, -30], scale: [1, 1, 1], rot: [0, 120, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
+        queijo5: { url: "objetos/queijo.obj", buffer: null, count: 0, ativo: true, pos:  [60, 0, -40], scale: [1, 1, 1], rot: [0, 180, 0], cor: [1.0, 0.8, 0.0], usaTextura: false, boxLocal: null },
         
         plantas: { 
-            url: "plantas.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/plantas.obj", buffer: null, count: 0, ativo: true,
             pos: [60, -1, -60],
             scale: [20, 20, 20],
             rot: [0, 0, 0],
@@ -71,7 +71,7 @@ var Cenario = {
             boxLocal: null
         },
         sofa: {
-            url: "sofa.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/sofa.obj", buffer: null, count: 0, ativo: true,
             pos: [0, 0, 50],      
             scale: [25, 25, 25],    
             rot: [0, 180, 0],   
@@ -81,7 +81,7 @@ var Cenario = {
         },
 
         mesa: {
-            url: "mesa.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/mesa.obj", buffer: null, count: 0, ativo: true,
             pos: [-40, -1, -50],      
             scale: [0.3, 0.3, 0.3],    
             rot: [0, 180, 0],   
@@ -91,29 +91,29 @@ var Cenario = {
         },
 
         prateleira: {
-            url: "prateleira.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/prateleira.obj", buffer: null, count: 0, ativo: true,
             pos: [0, -1, -70],      
             scale: [5, 5, 5],    
             rot: [0, 90, 0],   
             cor: [0.12, 0.08, 0.03],
-            tex: "estante.jpg",
+            tex: "texturas/estante.jpg",
             usaTextura: true,
             boxLocal: null
         },
 
         estante: {
-            url: "estante.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/estante.obj", buffer: null, count: 0, ativo: true,
             pos: [-65, -1, 0],      
             scale: [2.5, 2.5, 2.5],    
             rot: [-90, 90, 0],   
             cor: [0.33, 0.18, 0.09],
-            tex: "estante.jpg",
+            tex: "texturas/estante.jpg",
             usaTextura: true,
             boxLocal: null
         },
 
         livros: {
-            url: "livros.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/livros.obj", buffer: null, count: 0, ativo: true,
             pos: [70, -1, 0],      
             scale: [0.1, 0.1, 0.1],    
             rot: [-90, 0, 0],   
@@ -123,7 +123,7 @@ var Cenario = {
         },
         
         circulo: {
-            url: "circulo.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/circulo.obj", buffer: null, count: 0, ativo: true,
             pos: [0, 35, 74],      
             scale: [0.5, 0.5, 0.5],    
             rot: [-90, 0, 0],   
@@ -133,18 +133,18 @@ var Cenario = {
         },
         
         quadro: {
-            url: "piso.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/piso.obj", buffer: null, count: 0, ativo: true,
             pos: [20, 35, -72],     
             scale: [0.8, 0.5, 0.5],    
             rot: [90, 0, 0],   
             cor: [0.12, 0.08, 0.03],
-            tex: "jornal.jpg",
+            tex: "texturas/jornal.jpg",
             usaTextura: true,
             boxLocal: null
         },
 
         quadro2: {
-            url: "piso.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/piso.obj", buffer: null, count: 0, ativo: true,
             pos: [20, 35, -73],     
             scale: [0.9, 0.6, 0.6],    
             rot: [90, 0, 0],   
@@ -154,29 +154,29 @@ var Cenario = {
         },
 
         rato1: {
-            url: "rato.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/rato.obj", buffer: null, count: 0, ativo: true,
             pos: [40, -1.5, 60],      
             scale: [0.08, 0.08, 0.08],    
             rot: [0, 70, 0],   
             cor: [0.12, 0.08, 0.03],
-            tex: "pelos.jpg",
+            tex: "texturas/pelos.jpg",
             usaTextura: true,
             boxLocal: null
         },
 
         rato2: {
-            url: "rato.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/rato.obj", buffer: null, count: 0, ativo: true,
             pos: [50, -1.5, 60],      
             scale: [0.08, 0.08, 0.08],    
             rot: [0, 140, 0],   
             cor: [0.12, 0.08, 0.03],
-            tex: "pelo2.jpg",
+            tex: "texturas/pelo2.jpg",
             usaTextura: true,
             boxLocal: null
         },
 
         buraco: {
-            url: "buraco.obj", buffer: null, count: 0, ativo: true,
+            url: "objetos/buraco.obj", buffer: null, count: 0, ativo: true,
             pos: [74, -1, 50],      
             scale: [3, 3, 3],    
             rot: [0, 90, 0],   
@@ -193,13 +193,13 @@ var Cenario = {
     async init(gl) {
         try {
 
-            this.texturas["Tijolo.jpg"] = this.carregarTextura(gl, "Tijolo.jpg");
-            this.texturas["Teto.jpg"]   = this.carregarTextura(gl, "Teto.jpg");
-            this.texturas["Parede.jpg"] = this.carregarTextura(gl, "Parede.jpg");
-            this.texturas["estante.jpg"] = this.carregarTextura(gl, "estante.jpg");
-            this.texturas["jornal.jpg"] = this.carregarTextura(gl, "jornal.jpg");
-            this.texturas["pelos.jpg"] = this.carregarTextura(gl, "pelos.jpg");
-            this.texturas["pelo2.jpg"] = this.carregarTextura(gl, "pelo2.jpg");
+            this.texturas["texturas/Tijolo.jpg"] = this.carregarTextura(gl, "texturas/Tijolo.jpg");
+            this.texturas["texturas/Teto.jpg"]   = this.carregarTextura(gl, "texturas/Teto.jpg");
+            this.texturas["texturas/Parede.jpg"] = this.carregarTextura(gl, "texturas/Parede.jpg");
+            this.texturas["texturas/estante.jpg"] = this.carregarTextura(gl, "texturas/estante.jpg");
+            this.texturas["texturas/jornal.jpg"] = this.carregarTextura(gl, "texturas/jornal.jpg");
+            this.texturas["texturas/pelos.jpg"] = this.carregarTextura(gl, "texturas/pelos.jpg");
+            this.texturas["texturas/pelo2.jpg"] = this.carregarTextura(gl, "texturas/pelo2.jpg");
 
             for (let chave in this.objetos) {
                 let obj = this.objetos[chave];
