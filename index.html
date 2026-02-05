@@ -85,33 +85,34 @@
     
     <canvas id="glcanvas1" width="1600" height="1000"></canvas>
 
-    <div id="ui-placar" style="
+  <div id="ui-placar" style="
         position: absolute; 
-        top: 20px; 
-        left: 20px; 
-        color: white; 
+        top: 20px; left: 20px; 
+        color: white; font-family: Arial, sans-serif; 
+        font-size: 32px; font-weight: bold;
+        text-shadow: 2px 2px 4px #000; pointer-events: none;">
+        QUEIJOS: <span id="contador">0</span> / 5
+    </div>
+
+    <div id="ui-tempo" style="
+        position: absolute; 
+        top: 60px; left: 20px; 
+        color: #00FFFF; /* Cor Ciano para diferenciar */
         font-family: Arial, sans-serif; 
-        font-size: 32px; 
-        font-weight: bold;
-        text-shadow: 2px 2px 4px #000;
-        pointer-events: none;"> QUEIJOS: <span id="contador">0</span> / 5
+        font-size: 28px; font-weight: bold;
+        text-shadow: 2px 2px 4px #000; pointer-events: none;">
+        TEMPO: <span id="timer">0.0</span>s
     </div>
 
     <div id="ui-vitoria" style="
-        display: none; 
-        position: absolute; 
-        top: 50%; 
-        left: 50%; 
+        display: none; position: absolute; top: 50%; left: 50%; 
         transform: translate(-50%, -50%); 
-        color: #FFD700; 
-        font-family: Arial, sans-serif; 
-        font-size: 80px; 
-        font-weight: bold;
-        text-shadow: 4px 4px 0px #000;
-        text-align: center;
-        pointer-events: none;">
+        color: #FFD700; font-family: Arial, sans-serif; 
+        font-size: 60px; font-weight: bold;
+        text-shadow: 4px 4px 0px #000; text-align: center; pointer-events: none;">
         DELICIOSO! <br>
-        <span style="font-size: 30px; color: white;">Recarregue a página para jogar de novo</span>
+        <span style="font-size: 30px; color: white;">Tempo Final: <span id="tempo-final"></span>s</span><br>
+        <span style="font-size: 20px; color: #ccc;">F5 para reiniciar</span>
     </div>
 
 </body>

@@ -1,14 +1,18 @@
 var gl, prog;
-var ratoPos = [0, 0, 5]; // Posição inicial
+var ratoPos = [0, 0, 5]; 
 
+// Variáveis de Jogo
 var queijosColetados = 0;
 var totalQueijos = 5;
+
+// Variáveis de Tempo (NOVO)
+var tempoInicial = 0;
+var jogoAcabou = false;
 
 async function init() {
     var canvas = document.getElementById("glcanvas1");
     gl = canvas.getContext("webgl");
     
-    // Shader e GL Setup
     prog = createProgram(gl, 
         createShader(gl, gl.VERTEX_SHADER, document.getElementById("vertex-shader").text),
         createShader(gl, gl.FRAGMENT_SHADER, document.getElementById("frag-shader").text)
@@ -19,11 +23,11 @@ async function init() {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
-    // 1. Inicia Controles (Mouse/Teclado)
     Controles.init("glcanvas1");
 
-    // 2. Inicia Cenário (Carrega OBJs e Texturas)
     if (await Cenario.init(gl)) {
+        // --- INICIA O CRONÔMETRO AGORA ---
+        tempoInicial = Date.now();
         draw();
     }
 }
@@ -31,7 +35,15 @@ async function init() {
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // 1. Lógica de Movimento
+    // --- LÓGICA DO TEMPO (NOVO) ---
+    if (!jogoAcabou) {
+        // Calcula segundos passados: (Agora - Inicio) / 1000
+        var tempoAtual = (Date.now() - tempoInicial) / 1000;
+        // Atualiza na tela com 1 casa decimal (ex: 12.5)
+        document.getElementById("timer").innerText = tempoAtual.toFixed(1);
+    }
+
+    // --- LÓGICA DE MOVIMENTO ---
     var proximaPos = Controles.simularProximaPosicao(ratoPos);
     var resultado = Colisao.verificar(proximaPos, Cenario.objetos);
 
@@ -39,31 +51,31 @@ function draw() {
         ratoPos = proximaPos;
     } 
     else {
-        // Se bateu em um objeto E o nome dele começa com "queijo"
         if (resultado.tipo === 'objeto' && resultado.nome.startsWith('queijo')) {
-            
             console.log("Pegou: " + resultado.nome);
             
-            // Remove ESSE queijo específico (queijo1, queijo2, etc)
             Cenario.objetos[resultado.nome].ativo = false;
             
-            // Atualiza Pontuação
             queijosColetados++;
             document.getElementById("contador").innerText = queijosColetados;
 
-            // Verifica Vitória
+            // --- VITÓRIA ---
             if (queijosColetados >= totalQueijos) {
+                jogoAcabou = true; // Para o cronômetro
+                
+                // Pega o tempo final para mostrar na tela de vitória
+                var tempoFinal = document.getElementById("timer").innerText;
+                document.getElementById("tempo-final").innerText = tempoFinal;
+                
                 document.getElementById("ui-vitoria").style.display = "block";
             }
             
-            // Permite andar (efeito de passar por cima)
             ratoPos = proximaPos;
         }
     }
 
-    // 2. Câmera
+    // --- CÂMERA E RENDER ---
     var cam = Controles.getCameraInfo(ratoPos);
-    
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(cam.eye, cam.target, [0, 1, 0]);
     var mVP = m4Multiply(mProj, mView);
@@ -71,13 +83,12 @@ function draw() {
     gl.uniform3fv(gl.getUniformLocation(prog, "u_lightPos"), [5.0, 5.0, 10.0]);
     gl.uniform3fv(gl.getUniformLocation(prog, "u_viewPos"), cam.eye);
 
-    // 3. Desenha
     Cenario.desenhar(gl, prog, mVP);
 
     requestAnimationFrame(draw);
 }
 
-// Helpers
+// Helpers (iguais)
 function createShader(gl, type, src) { 
     var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s;
 }
