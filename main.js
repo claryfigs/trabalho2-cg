@@ -1,18 +1,18 @@
 var gl, prog;
 var ratoPos = [0, 0, 5]; 
-
-// Variáveis de Jogo
 var queijosColetados = 0;
 var totalQueijos = 5;
-
-// Variáveis de Tempo (NOVO)
 var tempoInicial = 0;
-var jogoAcabou = false;
+var animationId = null; // Para poder parar o loop
 
-async function init() {
+// Função chamada pelo BODY do HTML
+async function initApp() {
+    // Inicializa Menu
+    Menu.init();
+
+    // Carrega WebGL em background (sem desenhar ainda)
     var canvas = document.getElementById("glcanvas1");
     gl = canvas.getContext("webgl");
-    
     prog = createProgram(gl, 
         createShader(gl, gl.VERTEX_SHADER, document.getElementById("vertex-shader").text),
         createShader(gl, gl.FRAGMENT_SHADER, document.getElementById("frag-shader").text)
@@ -24,57 +24,76 @@ async function init() {
     gl.enable(gl.CULL_FACE);
 
     Controles.init("glcanvas1");
+    await Cenario.init(gl);
+    
+    // NÃO chama draw() aqui. O botão Jogar fará isso.
+}
 
-    if (await Cenario.init(gl)) {
-        // --- INICIA O CRONÔMETRO AGORA ---
-        tempoInicial = Date.now();
-        draw();
+// Chamada pelo Menu.js quando clica em JOGAR
+function resetarJogo() {
+    ratoPos = [0, 0, 5];
+    Controles.yaw = -90;
+    Controles.pitch = 0;
+    queijosColetados = 0;
+    tempoInicial = Date.now();
+    
+    // Reativa os queijos
+    for (let chave in Cenario.objetos) {
+        if (chave.startsWith('queijo')) {
+            Cenario.objetos[chave].ativo = true;
+        }
     }
+    
+    // Reseta UI
+    document.getElementById("contador").innerText = "0";
+    document.getElementById("timer").innerText = "0.0";
+    document.getElementById("ui-vitoria").style.display = "none";
+
+    // Inicia loop
+    if (animationId) cancelAnimationFrame(animationId);
+    draw();
 }
 
 function draw() {
+    // Se o usuário saiu para o menu ou ranking, para de desenhar
+    if (Menu.estado !== "JOGANDO") return;
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // --- LÓGICA DO TEMPO (NOVO) ---
-    if (!jogoAcabou) {
-        // Calcula segundos passados: (Agora - Inicio) / 1000
-        var tempoAtual = (Date.now() - tempoInicial) / 1000;
-        // Atualiza na tela com 1 casa decimal (ex: 12.5)
-        document.getElementById("timer").innerText = tempoAtual.toFixed(1);
-    }
+    // --- TEMPO ---
+    var tempoAtual = (Date.now() - tempoInicial) / 1000;
+    document.getElementById("timer").innerText = tempoAtual.toFixed(1);
 
-    // --- LÓGICA DE MOVIMENTO ---
+    // --- MOVIMENTO ---
     var proximaPos = Controles.simularProximaPosicao(ratoPos);
     var resultado = Colisao.verificar(proximaPos, Cenario.objetos);
 
     if (!resultado.colidiu) {
         ratoPos = proximaPos;
-    } 
-    else {
+    } else {
         if (resultado.tipo === 'objeto' && resultado.nome.startsWith('queijo')) {
-            console.log("Pegou: " + resultado.nome);
-            
             Cenario.objetos[resultado.nome].ativo = false;
-            
             queijosColetados++;
             document.getElementById("contador").innerText = queijosColetados;
 
             // --- VITÓRIA ---
             if (queijosColetados >= totalQueijos) {
-                jogoAcabou = true; // Para o cronômetro
-                
-                // Pega o tempo final para mostrar na tela de vitória
-                var tempoFinal = document.getElementById("timer").innerText;
-                document.getElementById("tempo-final").innerText = tempoFinal;
-                
+                // Pequeno delay para mostrar que pegou o último
                 document.getElementById("ui-vitoria").style.display = "block";
+                
+                setTimeout(() => {
+                    // Chama o Menu para processar o ranking
+                    Menu.finalizarJogo(tempoAtual.toFixed(2));
+                }, 1000); // Espera 1 segundo e troca de tela
+                
+                // Retorna para evitar rodar mais um frame desnecessário
+                return; 
             }
-            
             ratoPos = proximaPos;
         }
     }
 
-    // --- CÂMERA E RENDER ---
+    // --- CÂMERA ---
     var cam = Controles.getCameraInfo(ratoPos);
     var mProj = m4Perspective(60, gl.canvas.width / gl.canvas.height, 0.1, 100);
     var mView = m4LookAt(cam.eye, cam.target, [0, 1, 0]);
@@ -85,10 +104,10 @@ function draw() {
 
     Cenario.desenhar(gl, prog, mVP);
 
-    requestAnimationFrame(draw);
+    animationId = requestAnimationFrame(draw);
 }
 
-// Helpers (iguais)
+// Helpers
 function createShader(gl, type, src) { 
     var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s;
 }
