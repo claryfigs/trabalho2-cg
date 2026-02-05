@@ -2,7 +2,7 @@ var Cenario = {
     objetos: {
         piso: { 
             url: "piso.obj", buffer: null, count: 0, ativo: true,
-            pos: [0, -1, 0], scale: [2.5, 1.0, 2.5], rot: [0, 0, 0],
+            pos: [0, -1, 0], scale: [3, 1.0, 3], rot: [0, 0, 0],
             cor: [1, 1, 1], tex: "Tijolo.jpg", usaTextura: true,
             boxLocal: null // Vai guardar {min: [x,y,z], max: [x,y,z]}
         },
@@ -33,10 +33,30 @@ var Cenario = {
         },
         plantas: { 
             url: "plantas.obj", buffer: null, count: 0, ativo: true,
-            pos: [10, 0, -10], scale: [10, 10, 10], rot: [0, 0, 0],
+            pos: [10, -1, -10], scale: [10, 10, 10], rot: [0, 0, 0],
             cor: [0.0, 1.0, 0.0], usaTextura: false,
             boxLocal: null
-        }
+        },
+
+        comoda: {
+        url: "comoda.obj", buffer: null, count: 0, ativo: true,
+        pos: [-10, -1, -70],      
+        scale: [0.2, 0.2, 0.2],    
+        rot: [0, -90, 0],   
+        cor: [1.0, 0.7, 0.8],
+        usaTextura: false,
+        boxLocal: null
+        },
+
+        sofa: {
+            url: "sofa.obj", buffer: null, count: 0, ativo: true,
+            pos: [0, 0, 50],      
+            scale: [20, 20, 20],    
+            rot: [0, 180, 0],   
+            cor: [1.0, 0.7, 0.8],
+            usaTextura: false,
+            boxLocal: null
+        },
     },
 
     texTijolo: null,

@@ -3,7 +3,7 @@ var Colisao = {
     tamanhoRato: { w: 0.6, h: 1.8, d: 0.6 },
 
     // Limites do mundo
-    limitesMundo: { xMin: -20, xMax: 20, zMin: -20, zMax: 20 },
+    limitesMundo: { xMin: -1000, xMax: 2000, zMin: -2000, zMax: 2000 },
 
     verificar(novaPos, listaObjetos) {
         
