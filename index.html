@@ -2,34 +2,31 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Rato 3D - Full Screen</title>
+    <title>Rato 3D</title>
 
     <style>
-        /* 1. Remove as margens brancas padrão do navegador */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Impede barras de rolagem */
-            background-color: #000; /* Fundo preto para evitar clarões */
+            overflow: hidden; 
+            background-color: #000; 
         }
 
-        /* 2. Força o Canvas a ocupar a tela inteira */
         #glcanvas1 {
-            position: absolute; /* Fixa ele no canto */
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw;  /* 100% da largura da janela */
-            height: 100vh; /* 100% da altura da janela */
-            display: none; /* Começa escondido (o JS vai mudar para block) */
-            z-index: 1;    /* Fica atrás da interface de texto */
+            width: 100vw; 
+            height: 100vh;
+            display: none; 
+            z-index: 1;   
         }
 
-        /* Ajuste para garantir que a UI fique na frente do canvas */
         #ui-jogo, #ui-vitoria {
             z-index: 5;
-            position: relative; /* Necessário para o z-index funcionar */
+            position: relative;
         }
     </style>
 
@@ -38,6 +35,7 @@
     <script src="cenario.js"></script>
     <script src="controles.js"></script>
     <script src="colisao.js"></script>
+    <script src="audio.js"></script>
     <script src="menu.js"></script>
     <script src="main.js"></script>
 
@@ -75,8 +73,8 @@
         uniform vec3 u_baseColor;
 
         void main() {
-            vec3 lightColor = vec3(1.0, 1.0, 1.0);
-            vec3 ambient = 0.2 * lightColor;
+            vec3 lightColor = vec3(0.8, 0.8, 0.8);
+            vec3 ambient = 0.01 * lightColor;
             
             vec3 norm = normalize(v_normal);
             vec3 lightDir = normalize(u_lightPos - v_pos);
@@ -86,7 +84,7 @@
             vec3 viewDir = normalize(u_viewPos - v_pos);
             vec3 reflectDir = reflect(-lightDir, norm);  
             float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-            vec3 specular = 0.2 * spec * lightColor;  
+            vec3 specular = 0.1 * spec * lightColor;  
                 
             vec4 baseColor;
             if(u_useTexture > 0.5) {
