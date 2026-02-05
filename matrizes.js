@@ -136,3 +136,12 @@ function m4RotationMatrix(rx, ry, rz) {
     var mZ = m4RotationZ(rz);
     return m4Multiply(mY, m4Multiply(mX, mZ));
 }
+
+function m4MultiplyPoint(m, v) { //função usada para calcular colisao
+    var x = v[0], y = v[1], z = v[2], w = v[3] || 1;
+    return [
+        m[0] * x + m[4] * y + m[8] * z + m[12] * w,
+        m[1] * x + m[5] * y + m[9] * z + m[13] * w,
+        m[2] * x + m[6] * y + m[10] * z + m[14] * w
+    ];
+}
