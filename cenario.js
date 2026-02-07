@@ -241,7 +241,7 @@ var Cenario = {
                 gl.uniform1f(uUseTexture, 1.0);
                 gl.activeTexture(gl.TEXTURE0);
                 
-                let nomeTextura = obj.tex || "Tijolo.jpg";
+                let nomeTextura = obj.tex
                 let texturaGPU = this.texturas[nomeTextura];
 
                 gl.bindTexture(gl.TEXTURE_2D, texturaGPU);
@@ -263,12 +263,10 @@ var Cenario = {
         }
     },
 
-    // --- FUNÇÕES UTILITÁRIAS ---
 
     calcularAABB(dados) {
         let min = [Infinity, Infinity, Infinity];
         let max = [-Infinity, -Infinity, -Infinity];
-        // Stride 8 = x, y, z, nx, ny, nz, u, v
         for (let i = 0; i < dados.length; i += 8) {
             let x = dados[i], y = dados[i+1], z = dados[i+2];
             if (x < min[0]) min[0] = x; if (y < min[1]) min[1] = y; if (z < min[2]) min[2] = z;

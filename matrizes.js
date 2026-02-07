@@ -84,49 +84,69 @@ function m4ComputeModelMatrix(translation, rx, ry, rz, scale) {
     return matFinal;
 }
 
-function m4Perspective(fovyInDegrees, aspect, near, far) {
-    var f = 1.0 / Math.tan(fovyInDegrees * Math.PI / 360);
-    var rangeInv = 1 / (near - far);
+function m4Perspective(fovEmGraus, aspect, near, far) {
 
+    var fovEmRadianos = fovEmGraus * Math.PI / 180;
+    var metadeFov = fovEmRadianos / 2;
+    var f = 1.0 / Math.tan(metadeFov);
+    var rangeInv = 1.0 / (near - far);
     return new Float32Array([
-        f / aspect, 0, 0, 0,
-        0, f, 0, 0,
-        0, 0, (near + far) * rangeInv, -1,
-        0, 0, near * far * rangeInv * 2, 0
+        // Coluna 1: Escala X (Considera o Aspect Ratio para não esticar a imagem)
+        f / aspect,   0,            0,                          0,
+
+        // Coluna 2: Escala Y (Baseada apenas no FOV)
+        0,            f,            0,                          0,
+
+        // Coluna 3: Escala Z e Translação Z
+        0,            0,            (near + far) * rangeInv,   -1,
+
+        // Coluna 4: Constante de Profundidade
+        0,            0,            near * far * rangeInv * 2,  0
     ]);
 }
 
+function subtrairVetores(a, b) {
+    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
+function normalizar(v) {
+    var len = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+    if (len > 0.00001) {
+        return [v[0] / len, v[1] / len, v[2] / len];
+    }
+    return [0, 0, 0];
+}
+function produtoVetorial(a, b) {
+    return [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0]
+    ];
+}
+function produtoEscalar(a, b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
 function m4LookAt(eye, target, up) {
-    //  Calcula os eixos da câmera (Z, X, Y)
-    // Zc = normalize(eye - target)
-    var z0 = eye[0] - target[0];
-    var z1 = eye[1] - target[1];
-    var z2 = eye[2] - target[2];
-    var lenZ = Math.sqrt(z0*z0 + z1*z1 + z2*z2);
-    z0 /= lenZ; z1 /= lenZ; z2 /= lenZ;
+    // Eixo Z (Frente da Câmera)
+    var zAxis = normalizar(subtrairVetores(eye, target));
+    // Eixo X (Direita da Câmera)
+    var xAxis = normalizar(produtoVetorial(up, zAxis));
+    // Recalculamos o Y para garantir que ele seja perpendicular a X e Z
+    var yAxis = produtoVetorial(zAxis, xAxis);
+    // A matriz de visão é composta por Rotação (Inversa) e Translação (Inversa)
+    var tx = -produtoEscalar(xAxis, eye);
+    var ty = -produtoEscalar(yAxis, eye);
+    var tz = -produtoEscalar(zAxis, eye);
 
-    // Xc = normalize(cross(up, Zc))
-    var x0 = up[1] * z2 - up[2] * z1;
-    var x1 = up[2] * z0 - up[0] * z2;
-    var x2 = up[0] * z1 - up[1] * z0;
-    var lenX = Math.sqrt(x0*x0 + x1*x1 + x2*x2);
-    x0 /= lenX; x1 /= lenX; x2 /= lenX;
-
-    // Yc = cross(Zc, Xc)
-    var y0 = z1 * x2 - z2 * x1;
-    var y1 = z2 * x0 - z0 * x2;
-    var y2 = z0 * x1 - z1 * x0;
-
-    // Cria a matriz de translação inversa e a matriz de rotação da câmera
-    // No final, retornamos R * T
     return new Float32Array([
-        x0, y0, z0, 0,
-        x1, y1, z1, 0,
-        x2, y2, z2, 0,
-        -(x0 * eye[0] + x1 * eye[1] + x2 * eye[2]),
-        -(y0 * eye[0] + y1 * eye[1] + y2 * eye[2]),
-        -(z0 * eye[0] + z1 * eye[1] + z2 * eye[2]),
-        1
+        // Coluna 1 (Eixo X)
+        xAxis[0], yAxis[0], zAxis[0], 0,
+        // Coluna 2 (Eixo Y)
+        xAxis[1], yAxis[1], zAxis[1], 0,
+        // Coluna 3 (Eixo Z)
+        xAxis[2], yAxis[2], zAxis[2], 0,
+        // Coluna 4 (Translação)
+        tx,       ty,       tz,       1
     ]);
 }
 
