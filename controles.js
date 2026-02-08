@@ -2,7 +2,7 @@ var Controles = {
     yaw: -90, //horizontal
     pitch: 0, //vertical
     teclas: { w: false, s: false, a: false, d: false },
-    velocidade: 0.2,
+    velocidade: 0.4,
     sensibilidade: 0.15,
 
     init(canvasId) {

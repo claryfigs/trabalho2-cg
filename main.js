@@ -115,6 +115,7 @@ function draw() {
         if (resultado.tipo === 'objeto' && resultado.nome.startsWith('queijo')) {
             Cenario.objetos[resultado.nome].ativo = false;
             queijosColetados++;
+            AudioGerenciador.tocarColeta();
             document.getElementById("contador").innerText = queijosColetados;
 
             if (queijosColetados >= totalQueijos) {
