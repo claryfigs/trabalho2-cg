@@ -1,14 +1,14 @@
-# 🐭 Em Busca do Queijo Sagrado (WebGL Engine)
+#  Caça ao queijo 
 
-## 📖 Visão Geral
+##  Visão Geral
 
 Este projeto é uma aplicação gráfica 3D interativa desenvolvida como avaliação final da disciplina de Computação Gráfica. O objetivo central é a implementação de um **motor gráfico (Game Engine) baseado na web**, capaz de renderizar cenas tridimensionais, importar modelos complexos e gerenciar física básica.
 
-Diferente de projetos que utilizam bibliotecas facilitadoras (como Three.js ou Babylon.js), este sistema foi construído utilizando **WebGL puro (Raw WebGL)** e **JavaScript Vanilla**. Toda a matemática matricial (álgebra linear), o processamento de arquivos `.obj`, o gerenciamento de shaders GLSL e a câmera em primeira pessoa foram implementados do zero, evidenciando o domínio completo do pipeline gráfico programável.
+Diferente de projetos que utilizam bibliotecas facilitadoras (como Three.js), este sistema foi construído utilizando **WebGL puro (Raw WebGL)** e **JavaScript Vanilla**. Toda a matemática matricial (álgebra linear), o processamento de arquivos `.obj`, o gerenciamento de shaders GLSL e a câmera em primeira pessoa foram implementados do zero, evidenciando o domínio completo do pipeline gráfico programável.
 
 ---
 
-## 🏗 Arquitetura do Sistema
+##  Arquitetura do Sistema
 
 A estrutura do código foi modularizada para separar responsabilidades entre renderização, lógica de jogo e matemática:
 
@@ -18,7 +18,7 @@ A estrutura do código foi modularizada para separar responsabilidades entre ren
 
 - **`leitor.js`** Um parser robusto de arquivos Wavefront (.obj). Lê o texto bruto dos modelos 3D, interpreta vértices (`v`), coordenadas de textura (`vt`) e normais (`vn`), e constrói os buffers necessários para a GPU. Inclui um algoritmo para calcular normais automaticamente via produto vetorial caso o arquivo original não as possua.
 
-- **`cenario.js`** Gerencia a cena e os objetos do jogo. Define a posição, escala e rotação de cada entidade (paredes, queijos, móveis). Responsável pelo carregamento de texturas e pela chamada de desenho (`gl.drawArrays`) de cada objeto, enviando as matrizes de modelo e cor para o shader.
+- **`.js`** Gerencia a cena e os objetos do jogo. Define a posição, escala e rotação de cada entidade (paredes, queijos, móveis). Responsável pelo carregamento de texturas e pela chamada de desenho (`gl.drawArrays`) de cada objeto, enviando as matrizes de modelo e cor para o shader.
 
 - **`colisao.js`** Sistema de detecção de colisões utilizando AABB (*Axis-Aligned Bounding Boxes*). Calcula os limites (min/max) de cada objeto e impede que a câmera atravesse paredes ou móveis, além de detectar a coleta dos queijos.
 
@@ -26,7 +26,7 @@ A estrutura do código foi modularizada para separar responsabilidades entre ren
 
 ---
 
-## ⚙️ Fluxo de Execução (Pipeline)
+##  Fluxo de Execução (Pipeline)
 
 1. **Inicialização (`initApp`)**:
    - O sistema inicializa o contexto WebGL e compila os shaders GLSL.
@@ -41,12 +41,12 @@ A estrutura do código foi modularizada para separar responsabilidades entre ren
 
 ---
 
-## 🛠 Principais Funções Implementadas
+##  Principais Funções Implementadas
 
 ### 1. `carregarOBJ(url, inverter)` (em *leitor.js*)
 **Descrição:** Realiza o parsing manual de arquivos 3D. Lê linha por linha o formato Wavefront, triangulariza as faces e organiza os dados em um *Float32Array* entrelaçado (interleaved) contendo Posição, Normal e Textura.
 
-**Destaque Técnico:** Calcula automaticamente as normais de superfície usando produto vetorial (`cross product`) se o modelo não tiver essa informação, garantindo que a iluminação funcione corretamente.
+**Destaque Técnico:** Calcula automaticamente as normais de superfície usando produto vetorial se o modelo não tiver essa informação, garantindo que a iluminação funcione corretamente.
 
 ### 2. `m4LookAt(eye, target, up)` (em *matrizes.js*)
 **Descrição:** Constrói a matriz de visualização que simula uma câmera. Define o sistema de coordenadas do observador calculando os vetores *Forward*, *Right* e *Up* ortogonais entre si.
@@ -65,7 +65,7 @@ A estrutura do código foi modularizada para separar responsabilidades entre ren
 
 ---
 
-## 🧠 Conceitos de Computação Gráfica Aplicados
+##  Conceitos de Computação Gráfica Aplicados
 
 - **Pipeline Gráfico Programável:** Uso de Vertex Shaders e Fragment Shaders customizados.
 - **Transformações Geométricas:** Manipulação de matrizes 4x4 (Model, View, Projection).
@@ -76,9 +76,9 @@ A estrutura do código foi modularizada para separar responsabilidades entre ren
 
 ---
 
-## 🚀 Como Executar o Projeto
+##  Como Executar o Projeto
 
-⚠️ **Atenção:** Devido às políticas de segurança dos navegadores (CORS), este projeto não funciona abrindo o arquivo `index.html` diretamente. É necessário um servidor HTTP local para carregar as texturas e modelos.
+ **Atenção:** Devido às políticas de segurança dos navegadores (CORS), este projeto não funciona abrindo o arquivo `index.html` diretamente. É necessário um servidor HTTP local para carregar as texturas e modelos.
 
 ### Opção 1: Usando VS Code (Recomendado)
 1. Instale a extensão **Live Server**.
@@ -90,7 +90,7 @@ Abra o terminal na pasta do projeto e execute:
 ```bash
 # Python 3.x
 python -m http.server
-
+```
 ##🎮 Controles
 W, A, S, D: Movimentam o rato.
 
@@ -103,7 +103,7 @@ Objetivo: Colete todos os 5 queijos espalhados pelo cenário!
 🎥 Demonstração
 (Insira aqui um link para o vídeo ou GIF do projeto rodando)
 
-👨‍💻 Equipe
+👨 Equipe
 Hildebrando Israel - hildebrando.sales@aluno.uece.br
 
 Samuel Cristhian - samuel.cristhian@aluno.uece.br
