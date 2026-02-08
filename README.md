@@ -102,7 +102,7 @@ F: Alterna a lanterna/luz.
 Objetivo: Colete todos os 5 queijos espalhados pelo cenário!    
 
 ### Demonstração
-[text](https://youtu.be/Af--ohHZOyY)
+[(https://youtu.be/Af--ohHZOyY)]
 
 👨 Equipe
 Hildebrando Israel - hildebrando.sales@aluno.uece.br
