@@ -91,7 +91,8 @@ Abra o terminal na pasta do projeto e execute:
 # Python 3.x
 python -m http.server
 ```
-##🎮 Controles
+
+###🎮 Controles
 W, A, S, D: Movimentam o rato.
 
 Mouse: Controla a direção do olhar (Câmera).
@@ -100,7 +101,7 @@ F: Alterna a lanterna/luz.
 
 Objetivo: Colete todos os 5 queijos espalhados pelo cenário!    
 
-🎥 Demonstração
+### Demonstração
 (Insira aqui um link para o vídeo ou GIF do projeto rodando)
 
 👨 Equipe
