@@ -92,7 +92,7 @@ Abra o terminal na pasta do projeto e execute:
 python -m http.server
 ```
 
-###🎮 Controles
+### 🎮 Controles
 W, A, S, D: Movimentam o rato.
 
 Mouse: Controla a direção do olhar (Câmera).
